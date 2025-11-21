@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +25,8 @@ import {
   Loader2,
   Users,
   User,
-  Radio
+  Radio,
+  LogOut
 } from 'lucide-react';
 import { 
   getFixturesByDate, 
@@ -43,22 +45,54 @@ import {
 } from '@/lib/predictions';
 
 export default function BettingApp() {
+  const router = useRouter();
+  const [authenticated, setAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedSport, setSelectedSport] = useState('football');
   const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
   const [selectedGender, setSelectedGender] = useState<'all' | 'male' | 'female'>('all');
   const [showLiveOnly, setShowLiveOnly] = useState(false);
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingFixtures, setLoadingFixtures] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [dashStats, setDashStats] = useState<any>(null);
 
+  // Verificar autenticação ao carregar
   useEffect(() => {
-    loadTodayFixtures();
-    loadDashboardStats();
-  }, []);
+    const checkAuth = () => {
+      const authData = localStorage.getItem('betsmartpro_auth');
+      
+      if (!authData) {
+        router.push('/login');
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(authData);
+        if (parsed.authenticated) {
+          setAuthenticated(true);
+          loadTodayFixtures();
+          loadDashboardStats();
+        } else {
+          router.push('/login');
+        }
+      } catch {
+        router.push('/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('betsmartpro_auth');
+    router.push('/login');
+  };
 
   const loadTodayFixtures = async () => {
-    setLoading(true);
+    setLoadingFixtures(true);
     try {
       const today = new Date().toISOString().split('T')[0];
       console.log('🔍 Buscando jogos para:', today);
@@ -88,7 +122,7 @@ export default function BettingApp() {
       console.error('❌ Erro ao carregar jogos:', error);
       setFixtures([]);
     } finally {
-      setLoading(false);
+      setLoadingFixtures(false);
     }
   };
 
@@ -96,6 +130,23 @@ export default function BettingApp() {
     const stats = calculateDashboardStats();
     setDashStats(stats);
   };
+
+  // Mostrar loading enquanto verifica autenticação
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-emerald-500 mx-auto mb-4" />
+          <p className="text-slate-400">Verificando acesso...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não autenticado, não renderizar nada (redirecionamento já foi feito)
+  if (!authenticated) {
+    return null;
+  }
 
   // Definir ligas prioritárias (as mais relevantes)
   const PRIORITY_LEAGUES = [
@@ -205,14 +256,25 @@ export default function BettingApp() {
               </div>
             </div>
             
-            <Button
-              onClick={() => setShowDashboard(!showDashboard)}
-              variant="outline"
-              className="border-slate-700 hover:bg-slate-800"
-            >
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Painel de Controle
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setShowDashboard(!showDashboard)}
+                variant="outline"
+                className="border-slate-700 hover:bg-slate-800"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Painel de Controle
+              </Button>
+              
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                className="border-slate-700 hover:bg-red-900/50 hover:border-red-500"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sair
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -404,16 +466,16 @@ export default function BettingApp() {
                     variant="outline"
                     size="sm"
                     className="border-slate-700"
-                    disabled={loading}
+                    disabled={loadingFixtures}
                   >
-                    {loading ? (
+                    {loadingFixtures ? (
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     ) : null}
                     Atualizar
                   </Button>
                 </div>
 
-                {loading ? (
+                {loadingFixtures ? (
                   <Card className="bg-slate-900/50 border-slate-800">
                     <CardContent className="py-12 text-center">
                       <div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4" />
