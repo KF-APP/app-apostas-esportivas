@@ -1,26 +1,32 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { 
   Trophy, 
   CheckCircle2, 
   CreditCard,
   Lock,
   ArrowLeft,
-  Loader2
+  Loader2,
+  Star
 } from 'lucide-react';
 import Link from 'next/link';
 
+type PlanType = 'monthly' | 'yearly';
+
 export default function CheckoutPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>('yearly');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -28,6 +34,33 @@ export default function CheckoutPage() {
     cardExpiry: '',
     cardCvc: '',
   });
+
+  useEffect(() => {
+    const planParam = searchParams.get('plan');
+    if (planParam === 'monthly' || planParam === 'yearly') {
+      setSelectedPlan(planParam);
+    }
+  }, [searchParams]);
+
+  const plans = {
+    monthly: {
+      name: 'Plano Mensal',
+      price: 29.90,
+      priceFormatted: 'R$ 29,90',
+      period: '/mês',
+      description: 'Renovação automática mensal',
+    },
+    yearly: {
+      name: 'Plano Anual',
+      price: 297.00,
+      priceFormatted: 'R$ 297,00',
+      period: '/ano',
+      description: 'Pagamento único anual',
+      savings: 'Economize R$ 61,80 (17%)',
+    },
+  };
+
+  const currentPlan = plans[selectedPlan];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,10 +73,11 @@ export default function CheckoutPage() {
       const password = Math.random().toString(36).slice(-8);
 
       // Salvar no localStorage (em produção, isso viria do backend)
-      localStorage.setItem('betsmartpro_credentials', JSON.stringify({
+      localStorage.setItem('palpitepro_credentials', JSON.stringify({
         username,
         password,
         email: formData.email,
+        plan: selectedPlan,
         purchaseDate: new Date().toISOString()
       }));
 
@@ -68,7 +102,7 @@ export default function CheckoutPage() {
                 <Trophy className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">BetSmart Pro</h1>
+                <h1 className="text-2xl font-bold text-white">PalpitePro</h1>
                 <p className="text-sm text-slate-400">Checkout Seguro</p>
               </div>
             </div>
@@ -86,7 +120,61 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
           {/* Formulário de Pagamento */}
-          <div>
+          <div className="space-y-6">
+            {/* Seleção de Plano */}
+            <Card className="bg-slate-900/50 border-slate-800">
+              <CardHeader>
+                <CardTitle className="text-white">Escolha Seu Plano</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Selecione a melhor opção para você
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RadioGroup value={selectedPlan} onValueChange={(value) => setSelectedPlan(value as PlanType)}>
+                  <div className="space-y-3">
+                    <label
+                      htmlFor="monthly"
+                      className={`flex items-center justify-between p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                        selectedPlan === 'monthly'
+                          ? 'border-emerald-500 bg-emerald-500/10'
+                          : 'border-slate-700 hover:border-slate-600'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value="monthly" id="monthly" />
+                        <div>
+                          <p className="font-semibold text-white">Plano Mensal</p>
+                          <p className="text-sm text-slate-400">R$ 29,90/mês</p>
+                        </div>
+                      </div>
+                    </label>
+
+                    <label
+                      htmlFor="yearly"
+                      className={`flex items-center justify-between p-4 rounded-lg border-2 cursor-pointer transition-all relative ${
+                        selectedPlan === 'yearly'
+                          ? 'border-emerald-500 bg-emerald-500/10'
+                          : 'border-slate-700 hover:border-slate-600'
+                      }`}
+                    >
+                      <Badge className="absolute -top-2 -right-2 bg-emerald-500 text-white">
+                        <Star className="w-3 h-3 mr-1" />
+                        Economize 17%
+                      </Badge>
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value="yearly" id="yearly" />
+                        <div>
+                          <p className="font-semibold text-white">Plano Anual</p>
+                          <p className="text-sm text-slate-400">R$ 297,00/ano</p>
+                          <p className="text-xs text-emerald-400 mt-1">Apenas R$ 24,75/mês</p>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </RadioGroup>
+              </CardContent>
+            </Card>
+
             <Card className="bg-slate-900/50 border-slate-800">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
@@ -185,7 +273,7 @@ export default function CheckoutPage() {
                     ) : (
                       <>
                         <Lock className="w-5 h-5 mr-2" />
-                        Finalizar Compra - R$ 97,00
+                        Finalizar Compra - {currentPlan.priceFormatted}
                       </>
                     )}
                   </Button>
@@ -212,8 +300,13 @@ export default function CheckoutPage() {
                       <Trophy className="w-8 h-8 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-white mb-1">BetSmart Pro - Acesso Vitalício</h3>
-                      <p className="text-sm text-slate-400">Pagamento único • Sem mensalidades</p>
+                      <h3 className="font-semibold text-white mb-1">{currentPlan.name}</h3>
+                      <p className="text-sm text-slate-400">{currentPlan.description}</p>
+                      {currentPlan.savings && (
+                        <Badge className="mt-2 bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+                          {currentPlan.savings}
+                        </Badge>
+                      )}
                     </div>
                   </div>
 
@@ -226,7 +319,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                      <span className="text-slate-300">Sugestões para todos os níveis de risco</span>
+                      <span className="text-slate-300">Palpites gerados por IA</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
@@ -242,7 +335,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                      <span className="text-slate-300">Atualizações gratuitas</span>
+                      <span className="text-slate-300">Suporte prioritário</span>
                     </div>
                   </div>
 
@@ -251,17 +344,20 @@ export default function CheckoutPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between text-slate-400">
                       <span>Subtotal</span>
-                      <span>R$ 97,00</span>
+                      <span>{currentPlan.priceFormatted}</span>
                     </div>
-                    <div className="flex justify-between text-slate-400">
-                      <span>Desconto</span>
-                      <span className="text-emerald-400">R$ 0,00</span>
-                    </div>
+                    {selectedPlan === 'yearly' && (
+                      <div className="flex justify-between text-emerald-400 text-sm">
+                        <span>Desconto anual</span>
+                        <span>-R$ 61,80</span>
+                      </div>
+                    )}
                     <Separator className="bg-slate-800" />
                     <div className="flex justify-between text-xl font-bold">
                       <span className="text-white">Total</span>
-                      <span className="text-emerald-400">R$ 97,00</span>
+                      <span className="text-emerald-400">{currentPlan.priceFormatted}</span>
                     </div>
+                    <p className="text-xs text-slate-400 text-right">{currentPlan.period}</p>
                   </div>
                 </div>
               </CardContent>
