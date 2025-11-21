@@ -1,6 +1,5 @@
-// API-Football Official Integration
-const API_BASE_URL = 'https://v3.football.api-sports.io';
-const API_KEY = process.env.NEXT_PUBLIC_FOOTBALL_API_KEY || 'e30eca76e3c6fd75c8e6757be93e26e5';
+// API-Football Official Integration via Next.js API Route
+const API_ROUTE = '/api/football';
 
 export interface Team {
   id: number;
@@ -66,68 +65,29 @@ export interface APIError {
   remaining?: number;
 }
 
-// Rate limiting: máximo de requisições por minuto
-let requestCount = 0;
-let lastResetTime = Date.now();
-const MAX_REQUESTS_PER_MINUTE = 30;
-
-function checkRateLimit(): boolean {
-  const now = Date.now();
-  const timeSinceReset = now - lastResetTime;
-  
-  // Reset contador a cada minuto
-  if (timeSinceReset >= 60000) {
-    requestCount = 0;
-    lastResetTime = now;
-  }
-  
-  return requestCount < MAX_REQUESTS_PER_MINUTE;
-}
-
 async function fetchAPI(endpoint: string): Promise<any> {
-  // Verificar rate limit
-  if (!checkRateLimit()) {
-    throw new Error('Rate limit excedido. Aguarde um momento e tente novamente.');
-  }
-  
-  requestCount++;
-  
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      headers: {
-        'x-apisports-key': API_KEY,
-      },
-      next: { revalidate: 300 }, // Cache por 5 minutos
+    const response = await fetch(`${API_ROUTE}?endpoint=${encodeURIComponent(endpoint)}`, {
+      cache: 'no-store', // Sempre buscar dados frescos
     });
 
     if (!response.ok) {
-      // Tratamento específico de erros HTTP
-      if (response.status === 429) {
-        throw new Error('Limite de requisições atingido. Tente novamente em alguns minutos.');
-      }
-      if (response.status === 401) {
-        throw new Error('Chave API inválida. Verifique suas credenciais.');
-      }
-      if (response.status === 404) {
-        throw new Error('Recurso não encontrado.');
-      }
-      throw new Error(`Erro na API: ${response.status} - ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({ error: 'Erro desconhecido' }));
+      throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
     }
 
-    const data = await response.json();
+    const result = await response.json();
     
-    // Verificar se há erros na resposta da API
-    if (data.errors && Object.keys(data.errors).length > 0) {
-      console.error('API Errors:', data.errors);
-      throw new Error('Erro ao processar dados da API.');
+    if (!result.success) {
+      throw new Error(result.error || 'Erro ao processar dados');
     }
     
     // Log de uso da API (útil para monitoramento)
-    if (data.paging) {
-      console.log(`📊 API Usage - Remaining: ${data.paging.remaining || 'N/A'}`);
+    if (result.paging) {
+      console.log(`📊 API Usage - Remaining: ${result.paging.remaining || 'N/A'}`);
     }
     
-    return data.response || [];
+    return result.data || [];
   } catch (error) {
     // Log detalhado para debugging
     console.error('❌ API Error:', {

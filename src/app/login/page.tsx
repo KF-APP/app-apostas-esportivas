@@ -41,14 +41,14 @@ export default function LoginPage() {
 
       // Simular login bem-sucedido
       // Salvar token/sessão no localStorage
-      localStorage.setItem('betsmartpro_auth', JSON.stringify({
+      localStorage.setItem('palpitepro_auth', JSON.stringify({
         email,
         authenticated: true,
         timestamp: Date.now()
       }));
 
-      // Redirecionar para a página principal
-      router.push('/');
+      // Redirecionar para o dashboard
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Erro ao fazer login. Tente novamente.');
     } finally {
@@ -66,8 +66,8 @@ export default function LoginPage() {
               <Trophy className="w-12 h-12 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-white">BetSmart Pro</h1>
-          <p className="text-slate-400">Faça login para acessar suas sugestões</p>
+          <h1 className="text-3xl font-bold text-white">PalpitePro</h1>
+          <p className="text-slate-400">Faça login para acessar seus palpites</p>
         </div>
 
         {/* Card de Login */}
@@ -178,7 +178,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-sm text-slate-500">
-          © 2024 BetSmart Pro. Todos os direitos reservados.
+          © 2024 PalpitePro. Todos os direitos reservados.
         </p>
       </div>
     </div>
