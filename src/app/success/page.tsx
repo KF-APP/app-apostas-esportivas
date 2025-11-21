@@ -22,7 +22,7 @@ export default function SuccessPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const storedCredentials = localStorage.getItem('palpitepro_credentials');
+    const storedCredentials = localStorage.getItem('betsmartpro_credentials');
     if (storedCredentials) {
       setCredentials(JSON.parse(storedCredentials));
     } else {
@@ -38,7 +38,7 @@ export default function SuccessPage() {
 
   const handleLogin = () => {
     // Salvar autenticação
-    localStorage.setItem('palpitepro_auth', JSON.stringify({
+    localStorage.setItem('betsmartpro_auth', JSON.stringify({
       authenticated: true,
       username: credentials.username,
       email: credentials.email
@@ -60,7 +60,7 @@ export default function SuccessPage() {
               <Trophy className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">PalpitePro</h1>
+              <h1 className="text-2xl font-bold text-white">BetSmart Pro</h1>
               <p className="text-sm text-slate-400">Compra Confirmada</p>
             </div>
           </div>
@@ -79,7 +79,7 @@ export default function SuccessPage() {
                 Pagamento Confirmado!
               </h2>
               <p className="text-lg text-slate-400">
-                Bem-vindo ao PalpitePro! Seu acesso foi liberado.
+                Bem-vindo ao BetSmart Pro! Seu acesso foi liberado.
               </p>
             </div>
           </div>
@@ -222,9 +222,9 @@ export default function SuccessPage() {
                   <span className="text-white font-bold">3</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white mb-1">Receba Palpites da IA</h4>
+                  <h4 className="font-semibold text-white mb-1">Receba Sugestões</h4>
                   <p className="text-sm text-slate-400">
-                    Veja palpites gerados por inteligência artificial baseados em dados reais
+                    Veja sugestões de apostas baseadas em dados reais
                   </p>
                 </div>
               </div>

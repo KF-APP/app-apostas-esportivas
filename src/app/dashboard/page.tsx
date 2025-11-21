@@ -60,7 +60,7 @@ export default function DashboardPage() {
   // Verificar autenticação ao carregar
   useEffect(() => {
     const checkAuth = () => {
-      const authData = localStorage.getItem('palpitepro_auth');
+      const authData = localStorage.getItem('betsmartpro_auth');
       
       if (!authData) {
         router.push('/login');
@@ -87,7 +87,7 @@ export default function DashboardPage() {
   }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem('palpitepro_auth');
+    localStorage.removeItem('betsmartpro_auth');
     router.push('/');
   };
 
@@ -222,8 +222,8 @@ export default function DashboardPage() {
                 <Trophy className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">PalpitePro</h1>
-                <p className="text-sm text-slate-400">Análises com Inteligência Artificial</p>
+                <h1 className="text-2xl font-bold text-white">BetSmart Pro</h1>
+                <p className="text-sm text-slate-400">Sugestões Inteligentes de Apostas</p>
               </div>
             </div>
             
@@ -724,7 +724,7 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
             size="sm"
             className="border-slate-700 hover:bg-emerald-600 hover:border-emerald-600"
           >
-            {expanded ? 'Ocultar' : 'Ver Palpites'}
+            {expanded ? 'Ocultar' : 'Ver Sugestões'}
           </Button>
         </div>
       </CardHeader>
@@ -741,7 +741,7 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
           ) : analysis && suggestions.length > 0 ? (
             <>
               <div className="space-y-4">
-                <h3 className="text-lg font-bold text-white">Palpites Gerados por IA</h3>
+                <h3 className="text-lg font-bold text-white">Sugestões de Apostas</h3>
                 <RiskLevelSection
                   level="conservative"
                   title="Conservador"
@@ -776,7 +776,7 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
           ) : (
             <div className="py-6 text-center">
               <AlertTriangle className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-              <p className="text-slate-400">Nenhum palpite disponível para este jogo</p>
+              <p className="text-slate-400">Nenhuma sugestão disponível para este jogo</p>
               <p className="text-sm text-slate-500 mt-1">Dados insuficientes para análise</p>
             </div>
           )}
@@ -801,10 +801,10 @@ function createFallbackBet(level: RiskLevel, analysis: MatchAnalysis): BetSugges
       riskLevel: 'conservative'
     };
   } else if (level === 'medium') {
-    const overUnder = avgTotalGoals > 2.5 ? 'Mais de 2.5 gols' : 'Menos de 2.5 gols';
+    const overUnder = avgTotalGoals > 2.5 ? 'Mais de 2.5' : 'Menos de 2.5';
     return {
       id: `${analysis.fixtureId}-medium-fallback`,
-      type: 'total_goals',
+      type: 'over_under',
       description: 'Total de Gols',
       prediction: overUnder,
       reasoning: `Média combinada de gols: ${avgTotalGoals.toFixed(1)} gols por jogo`,
@@ -967,11 +967,11 @@ function RiskLevelSection({
         }
         break;
 
-      case 'total_goals':
+      case 'over_under':
         const thresholdMatch = suggestion.prediction.match(/[\d.]+/);
         if (thresholdMatch) {
           const threshold = parseFloat(thresholdMatch[0]);
-          if (suggestion.prediction.toLowerCase().includes('mais')) {
+          if (suggestion.prediction.toLowerCase().includes('mais') || suggestion.prediction.toLowerCase().includes('over')) {
             isCorrect = totalGoals > threshold;
           } else {
             isCorrect = totalGoals < threshold;
@@ -1059,29 +1059,7 @@ function RiskLevelSection({
 }
 
 function DashboardView({ stats, onClose }: { stats: any; onClose: () => void }) {
-  if (!stats) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-emerald-500" />
-            Painel de Resultados (30 dias)
-          </h2>
-          <Button onClick={onClose} variant="outline" className="border-slate-700">
-            Voltar
-          </Button>
-        </div>
-
-        <Card className="bg-slate-900/50 border-slate-800">
-          <CardContent className="py-12 text-center">
-            <BarChart3 className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400">Nenhum dado disponível ainda</p>
-            <p className="text-sm text-slate-500 mt-1">Comece a usar o sistema para ver estatísticas</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  if (!stats) return null;
 
   return (
     <div className="space-y-6">
