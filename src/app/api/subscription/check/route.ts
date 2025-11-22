@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Forçar rota completamente dinâmica - NUNCA executar no build
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   try {
@@ -43,19 +45,30 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Importação dinâmica do Supabase apenas em runtime
-    const supabaseModule = await import('@/lib/supabase');
-    
-    const hasActiveSubscription = await supabaseModule.checkSubscriptionStatus(email);
-    const subscription = await supabaseModule.getSubscriptionByEmail(email);
+    // Tentar verificar assinatura no Supabase
+    try {
+      const { checkSubscriptionStatus, getSubscriptionByEmail } = await import('@/lib/supabase');
+      
+      const hasActiveSubscription = await checkSubscriptionStatus(email);
+      const subscription = await getSubscriptionByEmail(email);
 
-    return NextResponse.json({
-      success: true,
-      hasActiveSubscription,
-      subscription,
-    });
+      return NextResponse.json({
+        success: true,
+        hasActiveSubscription,
+        subscription,
+      });
+    } catch (supabaseError) {
+      // Se falhar ao acessar Supabase, retornar resposta padrão
+      console.error('Erro ao acessar Supabase:', supabaseError);
+      return NextResponse.json({
+        success: true,
+        hasActiveSubscription: false,
+        subscription: null,
+      });
+    }
   } catch (error) {
-    console.error('Erro ao verificar assinatura:', error);
+    // Qualquer erro retorna resposta padrão sem falhar
+    console.error('Erro na rota subscription/check:', error);
     return NextResponse.json(
       { 
         success: true,
