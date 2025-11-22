@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkSubscriptionStatus, getSubscriptionByEmail } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -27,7 +26,7 @@ export async function GET(request: NextRequest) {
           plan: 'premium',
           status: 'active',
           isMaster: true,
-          expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 ano
+          expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
         },
       });
     }
@@ -43,6 +42,9 @@ export async function GET(request: NextRequest) {
         error: 'Supabase não configurado',
       });
     }
+
+    // Importação dinâmica do Supabase apenas em runtime
+    const { checkSubscriptionStatus, getSubscriptionByEmail } = await import('@/lib/supabase');
 
     const hasActiveSubscription = await checkSubscriptionStatus(email);
     const subscription = await getSubscriptionByEmail(email);
