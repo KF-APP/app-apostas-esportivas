@@ -1,7 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Variáveis de ambiente do Supabase não configuradas. Configure NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -50,9 +54,9 @@ export async function getSubscriptionByEmail(email: string) {
     .eq('user_email', email)
     .order('created_at', { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
-  if (error && error.code !== 'PGRST116') throw error;
+  if (error) throw error;
   return data;
 }
 
@@ -61,26 +65,31 @@ export async function getSubscriptionByPaymentId(paymentId: string) {
     .from('subscriptions')
     .select('*')
     .eq('payment_id', paymentId)
-    .single();
+    .maybeSingle();
 
-  if (error && error.code !== 'PGRST116') throw error;
+  if (error) throw error;
   return data;
 }
 
 export async function checkSubscriptionStatus(email: string): Promise<boolean> {
-  const subscription = await getSubscriptionByEmail(email);
-  
-  if (!subscription) return false;
-  
-  if (subscription.status !== 'active') return false;
-  
-  const endDate = new Date(subscription.end_date);
-  const now = new Date();
-  
-  if (now > endDate) {
-    await updateSubscription(subscription.id, { status: 'expired' });
+  try {
+    const subscription = await getSubscriptionByEmail(email);
+    
+    if (!subscription) return false;
+    
+    if (subscription.status !== 'active') return false;
+    
+    const endDate = new Date(subscription.end_date);
+    const now = new Date();
+    
+    if (now > endDate) {
+      await updateSubscription(subscription.id, { status: 'expired' });
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Erro ao verificar status da assinatura:', error);
     return false;
   }
-  
-  return true;
 }
