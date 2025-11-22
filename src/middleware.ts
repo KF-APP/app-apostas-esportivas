@@ -25,6 +25,12 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/login', request.url));
       }
 
+      // BYPASS PARA USUÁRIO MASTER - acesso total sem verificar assinatura
+      if (authData.isMaster === true) {
+        console.log('✅ Acesso master concedido para:', authData.email);
+        return NextResponse.next();
+      }
+
       const hasActiveSubscription = await checkSubscriptionStatus(authData.email);
       
       if (!hasActiveSubscription) {
@@ -48,6 +54,11 @@ export async function middleware(request: NextRequest) {
         const authData = JSON.parse(authCookie.value);
         
         if (authData.email) {
+          // BYPASS PARA USUÁRIO MASTER - redireciona direto para dashboard
+          if (authData.isMaster === true) {
+            return NextResponse.redirect(new URL('/dashboard', request.url));
+          }
+
           const hasActiveSubscription = await checkSubscriptionStatus(authData.email);
           
           if (hasActiveSubscription) {
