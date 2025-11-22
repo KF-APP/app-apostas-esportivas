@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 // Função para obter cliente Supabase apenas em runtime
 function getSupabaseClient() {
@@ -9,7 +9,19 @@ function getSupabaseClient() {
     return null;
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createSupabaseClient(supabaseUrl, supabaseAnonKey);
+}
+
+// Exportar createClient para uso direto em componentes
+export function createClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase não configurado. Configure as variáveis de ambiente NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  }
+
+  return createSupabaseClient(supabaseUrl, supabaseAnonKey);
 }
 
 export type Subscription = {
