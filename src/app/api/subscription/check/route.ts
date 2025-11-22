@@ -32,6 +32,18 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Verificar se Supabase está configurado
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({
+        success: false,
+        hasActiveSubscription: false,
+        error: 'Supabase não configurado',
+      });
+    }
+
     const hasActiveSubscription = await checkSubscriptionStatus(email);
     const subscription = await getSubscriptionByEmail(email);
 
@@ -44,6 +56,8 @@ export async function GET(request: NextRequest) {
     console.error('Erro ao verificar assinatura:', error);
     return NextResponse.json(
       { 
+        success: false,
+        hasActiveSubscription: false,
         error: 'Erro ao verificar assinatura',
         details: error instanceof Error ? error.message : 'Erro desconhecido'
       },

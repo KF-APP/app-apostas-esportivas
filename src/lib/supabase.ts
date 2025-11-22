@@ -3,11 +3,14 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Variáveis de ambiente do Supabase não configuradas. Configure NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
+// Criar cliente apenas se as variáveis estiverem disponíveis
+let supabase: ReturnType<typeof createClient> | null = null;
+
+if (supabaseUrl && supabaseAnonKey) {
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export { supabase };
 
 export type Subscription = {
   id: string;
@@ -25,6 +28,10 @@ export type Subscription = {
 };
 
 export async function createSubscription(data: Omit<Subscription, 'id' | 'created_at' | 'updated_at'>) {
+  if (!supabase) {
+    throw new Error('Supabase não configurado. Configure as variáveis de ambiente NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  }
+
   const { data: subscription, error } = await supabase
     .from('subscriptions')
     .insert([data])
@@ -36,6 +43,10 @@ export async function createSubscription(data: Omit<Subscription, 'id' | 'create
 }
 
 export async function updateSubscription(id: string, data: Partial<Subscription>) {
+  if (!supabase) {
+    throw new Error('Supabase não configurado. Configure as variáveis de ambiente NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  }
+
   const { data: subscription, error } = await supabase
     .from('subscriptions')
     .update({ ...data, updated_at: new Date().toISOString() })
@@ -48,6 +59,10 @@ export async function updateSubscription(id: string, data: Partial<Subscription>
 }
 
 export async function getSubscriptionByEmail(email: string) {
+  if (!supabase) {
+    throw new Error('Supabase não configurado. Configure as variáveis de ambiente NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  }
+
   const { data, error } = await supabase
     .from('subscriptions')
     .select('*')
@@ -61,6 +76,10 @@ export async function getSubscriptionByEmail(email: string) {
 }
 
 export async function getSubscriptionByPaymentId(paymentId: string) {
+  if (!supabase) {
+    throw new Error('Supabase não configurado. Configure as variáveis de ambiente NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  }
+
   const { data, error } = await supabase
     .from('subscriptions')
     .select('*')
@@ -73,6 +92,11 @@ export async function getSubscriptionByPaymentId(paymentId: string) {
 
 export async function checkSubscriptionStatus(email: string): Promise<boolean> {
   try {
+    if (!supabase) {
+      console.warn('Supabase não configurado');
+      return false;
+    }
+
     const subscription = await getSubscriptionByEmail(email);
     
     if (!subscription) return false;
