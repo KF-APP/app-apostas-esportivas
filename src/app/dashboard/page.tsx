@@ -175,6 +175,7 @@ export default function DashboardPage() {
     });
   }
 
+  // Filtro "Ao Vivo" - mostra apenas ligas que têm jogos ao vivo
   if (showLiveOnly) {
     displayedGroups = displayedGroups.map(group => ({
       ...group,
@@ -199,7 +200,38 @@ export default function DashboardPage() {
     day: 'numeric'
   });
 
-  const availableLeagues = Object.values(groupedFixtures)
+  // Ligas disponíveis baseadas nos filtros ativos
+  let availableLeagues = Object.values(groupedFixtures);
+
+  // Se filtro "Ao Vivo" está ativo, mostrar apenas ligas com jogos ao vivo
+  if (showLiveOnly) {
+    availableLeagues = availableLeagues.map(group => ({
+      ...group,
+      fixtures: group.fixtures.filter(fixture => {
+        const status = fixture.fixture?.status?.short;
+        return ['LIVE', '1H', '2H', 'HT'].includes(status || '');
+      })
+    })).filter(group => group.fixtures.length > 0);
+  }
+
+  // Aplicar filtro de gênero nas ligas disponíveis
+  if (selectedGender !== 'all') {
+    availableLeagues = availableLeagues.filter(group => {
+      const leagueName = group.league.name.toLowerCase();
+      const isFemale = leagueName.includes('women') || 
+                       leagueName.includes('feminino') || 
+                       leagueName.includes('femenino') ||
+                       leagueName.includes('feminin');
+      
+      if (selectedGender === 'female') {
+        return isFemale;
+      } else {
+        return !isFemale;
+      }
+    });
+  }
+
+  const leaguesToDisplay = availableLeagues
     .map(g => ({ ...g.league, isPriority: g.isPriority }))
     .sort((a, b) => {
       if (a.isPriority && !b.isPriority) return -1;
@@ -231,10 +263,11 @@ export default function DashboardPage() {
               <Button
                 onClick={() => setShowDashboard(!showDashboard)}
                 variant="outline"
+                size="icon"
                 className="border-slate-700 hover:bg-slate-800"
+                title="Painel de Controle"
               >
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Painel de Controle
+                <BarChart3 className="w-4 h-4" />
               </Button>
               
               <Button
@@ -323,11 +356,11 @@ export default function DashboardPage() {
 
                   <Separator className="bg-slate-800" />
 
-                  {availableLeagues.length > 0 && (
+                  {leaguesToDisplay.length > 0 && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <h3 className="text-sm font-semibold text-slate-300">
-                          Ligas ({availableLeagues.length} disponíveis)
+                          Ligas ({leaguesToDisplay.length} disponíveis)
                         </h3>
                         {selectedLeague && (
                           <Button
@@ -343,7 +376,7 @@ export default function DashboardPage() {
 
                       <ScrollArea className="h-[300px] pr-4">
                         <div className="space-y-2">
-                          {availableLeagues.filter(l => l.isPriority).length > 0 && (
+                          {leaguesToDisplay.filter(l => l.isPriority).length > 0 && (
                             <>
                               <div className="flex items-center gap-2 mb-2">
                                 <Flame className="w-4 h-4 text-orange-500" />
@@ -351,7 +384,7 @@ export default function DashboardPage() {
                                   Ligas Principais
                                 </span>
                               </div>
-                              {availableLeagues
+                              {leaguesToDisplay
                                 .filter(league => league.isPriority)
                                 .map(league => (
                                   <Button
@@ -372,13 +405,13 @@ export default function DashboardPage() {
                                   </Button>
                                 ))}
                               
-                              {availableLeagues.filter(l => !l.isPriority).length > 0 && (
+                              {leaguesToDisplay.filter(l => !l.isPriority).length > 0 && (
                                 <Separator className="bg-slate-800 my-4" />
                               )}
                             </>
                           )}
 
-                          {availableLeagues.filter(l => !l.isPriority).length > 0 && (
+                          {leaguesToDisplay.filter(l => !l.isPriority).length > 0 && (
                             <>
                               <div className="flex items-center gap-2 mb-2">
                                 <Trophy className="w-4 h-4 text-slate-500" />
@@ -386,7 +419,7 @@ export default function DashboardPage() {
                                   Outras Ligas
                                 </span>
                               </div>
-                              {availableLeagues
+                              {leaguesToDisplay
                                 .filter(league => !league.isPriority)
                                 .map(league => (
                                   <Button
