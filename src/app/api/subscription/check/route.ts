@@ -37,17 +37,17 @@ export async function GET(request: NextRequest) {
 
     if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json({
-        success: false,
+        success: true,
         hasActiveSubscription: false,
-        error: 'Supabase não configurado',
+        subscription: null,
       });
     }
 
     // Importação dinâmica do Supabase apenas em runtime
-    const { checkSubscriptionStatus, getSubscriptionByEmail } = await import('@/lib/supabase');
-
-    const hasActiveSubscription = await checkSubscriptionStatus(email);
-    const subscription = await getSubscriptionByEmail(email);
+    const supabaseModule = await import('@/lib/supabase');
+    
+    const hasActiveSubscription = await supabaseModule.checkSubscriptionStatus(email);
+    const subscription = await supabaseModule.getSubscriptionByEmail(email);
 
     return NextResponse.json({
       success: true,
@@ -58,12 +58,11 @@ export async function GET(request: NextRequest) {
     console.error('Erro ao verificar assinatura:', error);
     return NextResponse.json(
       { 
-        success: false,
+        success: true,
         hasActiveSubscription: false,
-        error: 'Erro ao verificar assinatura',
-        details: error instanceof Error ? error.message : 'Erro desconhecido'
+        subscription: null,
       },
-      { status: 500 }
+      { status: 200 }
     );
   }
 }

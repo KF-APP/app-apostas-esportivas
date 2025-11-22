@@ -1,16 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Função para obter cliente Supabase apenas em runtime
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Criar cliente apenas se as variáveis estiverem disponíveis
-let supabase: ReturnType<typeof createClient> | null = null;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
 
-if (supabaseUrl && supabaseAnonKey) {
-  supabase = createClient(supabaseUrl, supabaseAnonKey);
+  return createClient(supabaseUrl, supabaseAnonKey);
 }
-
-export { supabase };
 
 export type Subscription = {
   id: string;
@@ -28,6 +28,8 @@ export type Subscription = {
 };
 
 export async function createSubscription(data: Omit<Subscription, 'id' | 'created_at' | 'updated_at'>) {
+  const supabase = getSupabaseClient();
+  
   if (!supabase) {
     throw new Error('Supabase não configurado. Configure as variáveis de ambiente NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
   }
@@ -43,6 +45,8 @@ export async function createSubscription(data: Omit<Subscription, 'id' | 'create
 }
 
 export async function updateSubscription(id: string, data: Partial<Subscription>) {
+  const supabase = getSupabaseClient();
+  
   if (!supabase) {
     throw new Error('Supabase não configurado. Configure as variáveis de ambiente NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
   }
@@ -59,6 +63,8 @@ export async function updateSubscription(id: string, data: Partial<Subscription>
 }
 
 export async function getSubscriptionByEmail(email: string) {
+  const supabase = getSupabaseClient();
+  
   if (!supabase) {
     throw new Error('Supabase não configurado. Configure as variáveis de ambiente NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
   }
@@ -76,6 +82,8 @@ export async function getSubscriptionByEmail(email: string) {
 }
 
 export async function getSubscriptionByPaymentId(paymentId: string) {
+  const supabase = getSupabaseClient();
+  
   if (!supabase) {
     throw new Error('Supabase não configurado. Configure as variáveis de ambiente NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
   }
@@ -92,6 +100,8 @@ export async function getSubscriptionByPaymentId(paymentId: string) {
 
 export async function checkSubscriptionStatus(email: string): Promise<boolean> {
   try {
+    const supabase = getSupabaseClient();
+    
     if (!supabase) {
       console.warn('Supabase não configurado');
       return false;
