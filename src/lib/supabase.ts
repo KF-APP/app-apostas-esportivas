@@ -33,7 +33,7 @@ export async function createSubscription(data: Omit<Subscription, 'id' | 'create
   }
 
   const { data: subscription, error } = await supabase
-    .from('subscriptions')
+    .from('subscriptions_complete')
     .insert([data])
     .select()
     .single();
@@ -48,7 +48,7 @@ export async function updateSubscription(id: string, data: Partial<Subscription>
   }
 
   const { data: subscription, error } = await supabase
-    .from('subscriptions')
+    .from('subscriptions_complete')
     .update({ ...data, updated_at: new Date().toISOString() })
     .eq('id', id)
     .select()
@@ -64,7 +64,7 @@ export async function getSubscriptionByEmail(email: string) {
   }
 
   const { data, error } = await supabase
-    .from('subscriptions')
+    .from('subscriptions_complete')
     .select('*')
     .eq('user_email', email)
     .order('created_at', { ascending: false })
@@ -81,7 +81,7 @@ export async function getSubscriptionByPaymentId(paymentId: string) {
   }
 
   const { data, error } = await supabase
-    .from('subscriptions')
+    .from('subscriptions_complete')
     .select('*')
     .eq('payment_id', paymentId)
     .maybeSingle();
