@@ -16,6 +16,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Verificar se é usuário master
+    const MASTER_EMAIL = process.env.MASTER_EMAIL || 'master@palpitepro.com';
+    if (email === MASTER_EMAIL) {
+      return NextResponse.json({
+        success: true,
+        hasActiveSubscription: true,
+        subscription: {
+          email: MASTER_EMAIL,
+          plan: 'premium',
+          status: 'active',
+          isMaster: true,
+          expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 ano
+        },
+      });
+    }
+
     const hasActiveSubscription = await checkSubscriptionStatus(email);
     const subscription = await getSubscriptionByEmail(email);
 
