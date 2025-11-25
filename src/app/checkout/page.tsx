@@ -34,6 +34,7 @@ function CheckoutContent() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
   });
   const [showExpiredAlert, setShowExpiredAlert] = useState(false);
 
@@ -71,22 +72,56 @@ function CheckoutContent() {
 
   const currentPlan = plans[selectedPlan];
 
-  const handleProceedToPayment = () => {
-    if (!formData.name || !formData.email) {
+  const handleProceedToPayment = async () => {
+    if (!formData.name || !formData.email || !formData.password) {
       alert('Por favor, preencha todos os campos');
       return;
     }
 
-    localStorage.setItem('palpitepro_checkout_data', JSON.stringify({
-      name: formData.name,
-      email: formData.email,
-      plan: selectedPlan,
-      timestamp: new Date().toISOString(),
-    }));
+    if (formData.password.length < 6) {
+      alert('A senha deve ter no mínimo 6 caracteres');
+      return;
+    }
 
-    window.open(currentPlan.link, '_blank');
-    
-    router.push(`/success?plan=${selectedPlan}&email=${encodeURIComponent(formData.email)}`);
+    setLoading(true);
+
+    try {
+      // Salvar dados do usuário no localStorage temporariamente
+      localStorage.setItem('palpitepro_checkout_data', JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        plan: selectedPlan,
+        timestamp: new Date().toISOString(),
+      }));
+
+      // Criar usuário pendente no Supabase
+      const response = await fetch('/api/subscription/init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          name: formData.name,
+          password: formData.password,
+          plan: selectedPlan,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao criar usuário');
+      }
+
+      // Abrir link de pagamento do PagBank
+      window.open(currentPlan.link, '_blank');
+      
+      // Redirecionar para página de sucesso
+      router.push(`/success?plan=${selectedPlan}&email=${encodeURIComponent(formData.email)}`);
+    } catch (error) {
+      console.error('Erro no checkout:', error);
+      alert('Erro ao processar checkout. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,10 +224,10 @@ function CheckoutContent() {
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <CreditCard className="w-5 h-5 text-emerald-500" />
-                    Suas Informações
+                    Criar Sua Conta
                   </CardTitle>
                   <CardDescription className="text-slate-400">
-                    Preencha seus dados para continuar
+                    Preencha seus dados para criar sua conta
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -223,7 +258,25 @@ function CheckoutContent() {
                         className="bg-slate-800 border-slate-700 text-white"
                       />
                       <p className="text-xs text-slate-400">
-                        Suas credenciais de acesso serão enviadas para este email
+                        Este será seu email de acesso à plataforma
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-slate-300">Senha</Label>
+                      <Input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="Mínimo 6 caracteres"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        required
+                        minLength={6}
+                        className="bg-slate-800 border-slate-700 text-white"
+                      />
+                      <p className="text-xs text-slate-400">
+                        Crie uma senha segura com no mínimo 6 caracteres
                       </p>
                     </div>
 
@@ -232,7 +285,7 @@ function CheckoutContent() {
                     <Alert className="bg-blue-500/10 border-blue-500/30">
                       <Lock className="w-4 h-4 text-blue-400" />
                       <AlertDescription className="text-blue-300 text-sm">
-                        Você será redirecionado para o PagBank para finalizar o pagamento de forma segura
+                        Sua conta será criada e ativada automaticamente após a confirmação do pagamento no PagBank
                       </AlertDescription>
                     </Alert>
 
@@ -240,7 +293,7 @@ function CheckoutContent() {
                       onClick={handleProceedToPayment}
                       size="lg" 
                       className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
-                      disabled={loading || !formData.name || !formData.email}
+                      disabled={loading || !formData.name || !formData.email || !formData.password}
                     >
                       {loading ? (
                         <>
@@ -346,7 +399,7 @@ function CheckoutContent() {
                     <div>
                       <h4 className="font-semibold text-emerald-400 mb-1">Acesso Imediato</h4>
                       <p className="text-sm text-slate-300">
-                        Após a confirmação do pagamento no PagBank, seu acesso será liberado automaticamente e você receberá as credenciais por email.
+                        Após a confirmação do pagamento no PagBank, sua conta será ativada automaticamente e você poderá fazer login com o email e senha cadastrados.
                       </p>
                     </div>
                   </div>

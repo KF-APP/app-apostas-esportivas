@@ -32,6 +32,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verificar senha (se existir no banco)
+    if (subscription.user_password && subscription.user_password !== password) {
+      console.warn('⚠️ Senha incorreta');
+      return NextResponse.json(
+        { error: 'Senha incorreta' },
+        { status: 401 }
+      );
+    }
+
     // Verificar status da assinatura
     if (subscription.status !== 'active') {
       console.warn('⚠️ Assinatura não ativa:', subscription.status);
@@ -48,6 +57,13 @@ export async function POST(request: NextRequest) {
 
       if (expiresAt < now) {
         console.warn('⚠️ Assinatura expirada');
+        
+        // Atualizar status para expirado
+        await supabase
+          .from('subscriptions_complete')
+          .update({ status: 'expired', updated_at: new Date().toISOString() })
+          .eq('id', subscription.id);
+        
         return NextResponse.json(
           { error: 'Sua assinatura expirou. Por favor, renove seu plano.' },
           { status: 403 }

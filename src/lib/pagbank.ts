@@ -15,12 +15,20 @@ export interface PagBankPayment {
     name: string;
     email: string;
   };
+  payment_method?: {
+    type: string;
+  };
   created_at: string;
   paid_at?: string;
 }
 
+/**
+ * Valida um pagamento no PagBank usando a API
+ */
 export async function validatePayment(paymentId: string): Promise<PagBankPayment | null> {
   try {
+    console.log('🔍 Validando pagamento:', paymentId);
+    
     const response = await fetch(`${PAGBANK_API_URL}/orders/${paymentId}`, {
       method: 'GET',
       headers: {
@@ -30,27 +38,37 @@ export async function validatePayment(paymentId: string): Promise<PagBankPayment
     });
 
     if (!response.ok) {
-      console.error('Erro ao validar pagamento:', response.status);
+      console.error('❌ Erro ao validar pagamento:', response.status);
       return null;
     }
 
     const data = await response.json();
+    console.log('✅ Pagamento validado:', data.status);
     return data;
   } catch (error) {
-    console.error('Erro ao validar pagamento:', error);
+    console.error('❌ Erro ao validar pagamento:', error);
     return null;
   }
 }
 
+/**
+ * Verifica o status de um pagamento
+ */
 export async function checkPaymentStatus(paymentId: string): Promise<PaymentStatus | null> {
   const payment = await validatePayment(paymentId);
   return payment?.status || null;
 }
 
+/**
+ * Verifica se um pagamento foi aprovado
+ */
 export function isPaid(status: PaymentStatus): boolean {
   return status === 'PAID';
 }
 
+/**
+ * Calcula a data de expiração baseada no tipo de plano
+ */
 export function calculateEndDate(planType: 'monthly' | 'yearly', startDate: Date = new Date()): Date {
   const endDate = new Date(startDate);
   
@@ -63,11 +81,28 @@ export function calculateEndDate(planType: 'monthly' | 'yearly', startDate: Date
   return endDate;
 }
 
+/**
+ * Identifica o tipo de plano baseado no valor pago
+ */
+export function identifyPlanType(amount: number): 'monthly' | 'yearly' {
+  // Tolerância de R$ 1,00 para variações
+  if (Math.abs(amount - PLAN_PRICES.yearly) < 1) {
+    return 'yearly';
+  }
+  return 'monthly';
+}
+
+/**
+ * Links de pagamento do PagBank
+ */
 export const PLAN_LINKS = {
   monthly: 'https://pag.ae/81eTUFyG6',
   yearly: 'https://pag.ae/81eTXTXM6',
 };
 
+/**
+ * Preços dos planos
+ */
 export const PLAN_PRICES = {
   monthly: 29.90,
   yearly: 297.00,

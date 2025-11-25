@@ -45,21 +45,8 @@ function SuccessContent() {
     }, 2000);
   }, [router, searchParams]);
 
-  const handleGoToDashboard = () => {
-    if (checkoutData?.email) {
-      localStorage.setItem('palpitepro_auth', JSON.stringify({
-        authenticated: true,
-        email: checkoutData.email,
-        name: checkoutData.name || '',
-      }));
-      
-      document.cookie = `palpitepro_auth=${JSON.stringify({
-        email: checkoutData.email,
-        name: checkoutData.name || '',
-      })}; path=/; max-age=31536000`;
-      
-      router.push('/dashboard');
-    }
+  const handleGoToLogin = () => {
+    router.push('/login');
   };
 
   if (!checkoutData) {
@@ -227,13 +214,13 @@ function SuccessContent() {
                 <Button 
                   size="lg" 
                   className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
-                  onClick={handleGoToDashboard}
+                  onClick={handleGoToLogin}
                 >
                   Tentar Acessar Dashboard
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
                 <p className="text-xs text-slate-500 mt-2">
-                  Você pode tentar acessar agora, mas o acesso só será liberado após confirmação do pagamento
+                  Você será direcionado para a tela de login. O acesso só será liberado após confirmação do pagamento.
                 </p>
               </div>
             </>
