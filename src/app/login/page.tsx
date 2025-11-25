@@ -2,12 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trophy, Lock, Mail, Loader2, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Trophy, Loader2, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,169 +17,136 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setLoading(true);
 
     try {
-      // Simulação de autenticação
-      // Em produção, você integraria com um backend real (Supabase, Firebase, etc)
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log('🔐 Iniciando login para:', email);
 
       // Validação básica
       if (!email || !password) {
-        throw new Error('Por favor, preencha todos os campos');
+        setError('Por favor, preencha todos os campos');
+        setLoading(false);
+        return;
       }
 
-      if (!email.includes('@')) {
-        throw new Error('Email inválido');
+      // Chamar API de login
+      console.log('📡 Chamando API de login...');
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('❌ Erro na API:', data.error);
+        setError(data.error || 'Erro ao fazer login');
+        setLoading(false);
+        return;
       }
 
-      if (password.length < 6) {
-        throw new Error('Senha deve ter no mínimo 6 caracteres');
-      }
+      console.log('✅ Login bem-sucedido!', data);
 
-      // Simular login bem-sucedido
-      // Salvar token/sessão no localStorage
-      localStorage.setItem('palpitepro_auth', JSON.stringify({
-        email,
+      // Salvar também no localStorage para compatibilidade com o dashboard
+      const authData = {
         authenticated: true,
-        timestamp: Date.now()
-      }));
+        user: data.user,
+      };
+      localStorage.setItem('palpitepro_auth', JSON.stringify(authData));
+      console.log('💾 Dados salvos no localStorage');
 
-      // Redirecionar para o dashboard
-      router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Erro ao fazer login. Tente novamente.');
-    } finally {
+      // Redirecionar para dashboard
+      console.log('🚀 Redirecionando para /dashboard...');
+      window.location.href = '/dashboard';
+      
+    } catch (err) {
+      console.error('❌ Erro no login:', err);
+      setError('Erro ao fazer login. Tente novamente.');
       setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Logo e Título */}
-        <div className="text-center space-y-2">
+      <Card className="w-full max-w-md bg-slate-900/50 border-slate-800">
+        <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-4 rounded-2xl">
-              <Trophy className="w-12 h-12 text-white" />
+            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-3 rounded-xl">
+              <Trophy className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-white">PalpitePro</h1>
-          <p className="text-slate-400">Faça login para acessar seus palpites</p>
-        </div>
-
-        {/* Card de Login */}
-        <Card className="bg-slate-900/50 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-white text-center">Bem-vindo de volta</CardTitle>
-            <CardDescription className="text-center">
-              Entre com suas credenciais para continuar
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              {/* Erro */}
-              {error && (
-                <Alert variant="destructive" className="bg-red-500/10 border-red-500/30">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-300">
-                  Email
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
-                    disabled={loading}
-                    required
-                  />
-                </div>
+          <CardTitle className="text-2xl text-white">Bem-vindo de volta</CardTitle>
+          <CardDescription className="text-slate-400">
+            Entre com seu email cadastrado para acessar os palpites
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="space-y-4">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-400">{error}</p>
               </div>
+            )}
 
-              {/* Senha */}
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-slate-300">
-                  Senha
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
-                    disabled={loading}
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Botão de Login */}
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold"
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-slate-300">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-slate-800 border-slate-700 text-white"
                 disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Entrando...
-                  </>
-                ) : (
-                  'Entrar'
-                )}
-              </Button>
-
-              {/* Links Auxiliares */}
-              <div className="text-center space-y-2">
-                <button
-                  type="button"
-                  className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
-                  onClick={() => alert('Funcionalidade de recuperação de senha em desenvolvimento')}
-                >
-                  Esqueceu sua senha?
-                </button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Informação Adicional */}
-        <Card className="bg-blue-500/10 border-blue-500/30">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-              <div className="space-y-1">
-                <p className="text-sm text-blue-300 font-semibold">
-                  Acesso Premium
-                </p>
-                <p className="text-xs text-blue-200/80">
-                  Esta é uma área exclusiva para usuários que adquiriram o aplicativo. 
-                  Após a compra, você receberá suas credenciais de acesso por email.
-                </p>
-              </div>
+                required
+              />
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Footer */}
-        <p className="text-center text-sm text-slate-500">
-          © 2024 PalpitePro. Todos os direitos reservados.
-        </p>
-      </div>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-slate-300">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-slate-800 border-slate-700 text-white"
+                disabled={loading}
+                required
+              />
+              <p className="text-xs text-slate-500">
+                Por enquanto, qualquer senha funciona para emails cadastrados com assinatura ativa
+              </p>
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Entrando...
+                </>
+              ) : (
+                'Entrar'
+              )}
+            </Button>
+
+            <div className="text-center">
+              <a href="/" className="text-sm text-emerald-400 hover:text-emerald-300">
+                Voltar para página inicial
+              </a>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
