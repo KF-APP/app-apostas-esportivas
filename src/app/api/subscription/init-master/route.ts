@@ -1,21 +1,73 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase';
+import { createAdminClient } from '@/lib/supabase';
 
 /**
  * Endpoint para inicializar usuário pré-registrado master
  * Chamado automaticamente na primeira vez que o sistema é acessado
+ * USA SERVICE_ROLE_KEY para ignorar RLS
  */
 export async function POST() {
   try {
     console.log('🚀 Inicializando usuário pré-registrado master...');
     
-    const supabase = createClient();
+    const supabase = createAdminClient();
     
-    // Verificar se usuário já existe
+    // Verificar se usuário já existe no Auth
+    const { data: authUsers, error: listError } = await supabase.auth.admin.listUsers();
+    
+    if (listError) {
+      console.error('❌ Erro ao listar usuários:', listError);
+    }
+    
+    const existingAuthUser = authUsers?.users?.find(u => u.email === 'fusquinekaique@hotmail.com');
+    
+    if (existingAuthUser) {
+      console.log('🔄 Usuário já existe no Auth (ID:', existingAuthUser.id, '), atualizando senha...');
+      
+      // Atualizar senha do usuário existente
+      const { error: updateError } = await supabase.auth.admin.updateUserById(
+        existingAuthUser.id,
+        {
+          password: 'Kaique24891510*',
+          email_confirm: true,
+          user_metadata: {
+            name: 'Kaique',
+          }
+        }
+      );
+      
+      if (updateError) {
+        console.error('❌ Erro ao atualizar usuário no Auth:', updateError);
+      } else {
+        console.log('✅ Senha atualizada no Supabase Auth');
+      }
+    } else {
+      console.log('➕ Criando novo usuário no Auth...');
+      
+      // Criar usuário no Supabase Auth usando SERVICE_ROLE_KEY
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email: 'fusquinekaique@hotmail.com',
+        password: 'Kaique24891510*',
+        email_confirm: true, // Confirmar email automaticamente
+        user_metadata: {
+          name: 'Kaique',
+        }
+      });
+      
+      if (authError) {
+        console.error('❌ Erro ao criar usuário no Auth:', authError);
+      } else {
+        console.log('✅ Usuário criado no Supabase Auth:', authData.user?.id);
+      }
+    }
+    
+    // Verificar se usuário já existe na tabela subscriptions_complete
     const { data: existing } = await supabase
       .from('subscriptions_complete')
       .select('*')
       .eq('user_email', 'fusquinekaique@hotmail.com')
+      .order('created_at', { ascending: false })
+      .limit(1)
       .single();
     
     const startDate = new Date();
@@ -23,13 +75,12 @@ export async function POST() {
     endDate.setFullYear(endDate.getFullYear() + 1); // +12 meses
     
     if (existing) {
-      console.log('🔄 Usuário master já existe, atualizando...');
+      console.log('🔄 Usuário master já existe na tabela (ID:', existing.id, '), atualizando...');
       
       const { data, error } = await supabase
         .from('subscriptions_complete')
         .update({
           user_name: 'Kaique',
-          user_password: 'Kaique24891510*',
           plan_type: 'yearly',
           status: 'active',
           payment_id: 'PRE_REGISTERED_USER',
@@ -39,7 +90,7 @@ export async function POST() {
           end_date: endDate.toISOString(),
           updated_at: new Date().toISOString(),
         })
-        .eq('user_email', 'fusquinekaique@hotmail.com')
+        .eq('id', existing.id)
         .select()
         .single();
       
@@ -49,6 +100,8 @@ export async function POST() {
       }
       
       console.log('✅ Usuário master atualizado com sucesso!');
+      console.log('📅 Data de início:', startDate.toISOString());
+      console.log('📅 Data de expiração:', endDate.toISOString());
       
       return NextResponse.json({
         success: true,
@@ -56,14 +109,14 @@ export async function POST() {
         user: data,
       });
     } else {
-      console.log('➕ Criando novo usuário master...');
+      console.log('➕ Criando novo registro na tabela...');
       
+      // Criar registro na tabela subscriptions_complete
       const { data, error } = await supabase
         .from('subscriptions_complete')
         .insert([{
           user_email: 'fusquinekaique@hotmail.com',
           user_name: 'Kaique',
-          user_password: 'Kaique24891510*',
           plan_type: 'yearly',
           status: 'active',
           payment_id: 'PRE_REGISTERED_USER',
@@ -81,6 +134,8 @@ export async function POST() {
       }
       
       console.log('✅ Usuário master criado com sucesso!');
+      console.log('📅 Data de início:', startDate.toISOString());
+      console.log('📅 Data de expiração:', endDate.toISOString());
       
       return NextResponse.json({
         success: true,
@@ -105,12 +160,14 @@ export async function POST() {
  */
 export async function GET() {
   try {
-    const supabase = createClient();
+    const supabase = createAdminClient();
     
     const { data, error } = await supabase
       .from('subscriptions_complete')
       .select('*')
       .eq('user_email', 'fusquinekaique@hotmail.com')
+      .order('created_at', { ascending: false })
+      .limit(1)
       .single();
     
     if (error || !data) {

@@ -107,9 +107,15 @@ function CheckoutContent() {
         }),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error('Erro ao criar usuário');
+        console.error('Erro na API:', result);
+        throw new Error(result.details || 'Erro ao criar usuário');
       }
+
+      // Log de sucesso
+      console.log('✅ Usuário criado/atualizado:', result);
 
       // Abrir link de pagamento do PagBank
       window.open(currentPlan.link, '_blank');

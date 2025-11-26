@@ -12,7 +12,8 @@ export function middleware(request: NextRequest) {
     '/success',
     '/api/auth/login', 
     '/api/webhook/pagbank', 
-    '/api/subscription/init'
+    '/api/subscription/init',
+    '/api/subscription/fix-auth'
   ];
   
   if (publicRoutes.some(route => pathname.startsWith(route))) {

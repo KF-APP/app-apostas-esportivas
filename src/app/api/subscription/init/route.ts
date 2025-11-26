@@ -1,152 +1,104 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase';
+import { NextRequest, NextResponse } from 'next/server';
+import { createAdminClient } from '@/lib/supabase';
 
-/**
- * Endpoint para criar usuário pendente durante o checkout
- * Usuário será ativado após confirmação do pagamento
- */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, name, password, plan } = body;
+    const { email, password, name, plan } = await request.json();
 
-    console.log('🚀 Criando usuário pendente:', { email, name, plan });
-    
-    if (!email || !name || !password || !plan) {
+    console.log('🚀 Iniciando criação de usuário:', { email, name, plan });
+
+    // Validação
+    if (!email || !password || !name || !plan) {
       return NextResponse.json(
         { error: 'Dados incompletos' },
         { status: 400 }
       );
     }
 
-    const supabase = createClient();
-    
-    // Verificar se usuário já existe
-    const { data: existing } = await supabase
-      .from('subscriptions_complete')
-      .select('*')
-      .eq('user_email', email)
-      .single();
-    
-    if (existing) {
-      // Se já existe, atualizar com novos dados
-      console.log('🔄 Usuário já existe, atualizando...');
-      
-      const { data, error } = await supabase
-        .from('subscriptions_complete')
-        .update({
-          user_name: name,
-          user_password: password,
-          plan_type: plan,
-          status: 'pending', // Status pendente até confirmação do pagamento
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_email', email)
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('❌ Erro ao atualizar usuário:', error);
-        throw error;
-      }
-      
-      console.log('✅ Usuário atualizado com sucesso!');
-      
-      return NextResponse.json({
-        success: true,
-        message: 'Usuário atualizado com sucesso',
-        user: data,
-      });
-    } else {
-      // Criar novo usuário pendente
-      console.log('➕ Criando novo usuário pendente...');
-      
-      const { data, error } = await supabase
-        .from('subscriptions_complete')
-        .insert([{
-          user_email: email,
-          user_name: name,
-          user_password: password,
-          plan_type: plan,
-          status: 'pending', // Status pendente até confirmação do pagamento
-          payment_id: null,
-          payment_method: null,
-          amount: plan === 'yearly' ? 297.00 : 29.90,
-          start_date: null,
-          end_date: null,
-        }])
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('❌ Erro ao criar usuário:', error);
-        throw error;
-      }
-      
-      console.log('✅ Usuário pendente criado com sucesso!');
-      
-      return NextResponse.json({
-        success: true,
-        message: 'Usuário criado com sucesso',
-        user: data,
-      });
-    }
-  } catch (error) {
-    console.error('❌ Erro ao processar usuário:', error);
-    return NextResponse.json(
-      { 
-        error: 'Erro ao processar usuário', 
-        details: error instanceof Error ? error.message : 'Unknown error' 
-      },
-      { status: 500 }
-    );
-  }
-}
+    const adminSupabase = createAdminClient();
 
-/**
- * Endpoint GET para verificar status de usuário
- */
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const email = searchParams.get('email');
-    
-    if (!email) {
+    // 1. CRIAR USUÁRIO NO SUPABASE AUTH
+    console.log('📝 Criando usuário no Supabase Auth...');
+    const { data: authData, error: authError } = await adminSupabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true, // Confirmar email automaticamente
+      user_metadata: {
+        name: name
+      }
+    });
+
+    if (authError) {
+      console.error('❌ Erro ao criar usuário no Auth:', authError);
       return NextResponse.json(
-        { error: 'Email não fornecido' },
-        { status: 400 }
+        { error: `Erro ao criar usuário: ${authError.message}` },
+        { status: 500 }
       );
     }
 
-    const supabase = createClient();
+    console.log('✅ Usuário criado no Auth:', authData.user.id);
+
+    // 2. CRIAR ASSINATURA NA TABELA
+    const startDate = new Date();
+    const endDate = new Date();
     
-    const { data, error } = await supabase
-      .from('subscriptions_complete')
-      .select('*')
-      .eq('user_email', email)
-      .single();
-    
-    if (error || !data) {
-      return NextResponse.json({
-        exists: false,
-        message: 'Usuário não encontrado',
-      });
+    if (plan === 'yearly') {
+      endDate.setFullYear(endDate.getFullYear() + 1);
+    } else {
+      endDate.setMonth(endDate.getMonth() + 1);
     }
-    
+
+    console.log('📝 Criando assinatura na tabela...');
+    const { data: subscription, error: subError } = await adminSupabase
+      .from('subscriptions_complete')
+      .insert({
+        user_email: email,
+        user_name: name,
+        plan_type: plan,
+        status: 'active',
+        payment_id: `INIT_${Date.now()}`,
+        payment_method: 'manual',
+        amount: plan === 'yearly' ? '297.00' : '29.90',
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
+      })
+      .select()
+      .single();
+
+    if (subError) {
+      console.error('❌ Erro ao criar assinatura:', subError);
+      
+      // Reverter criação do usuário no Auth
+      await adminSupabase.auth.admin.deleteUser(authData.user.id);
+      
+      return NextResponse.json(
+        { error: `Erro ao criar assinatura: ${subError.message}` },
+        { status: 500 }
+      );
+    }
+
+    console.log('✅ Assinatura criada com sucesso!');
+
     return NextResponse.json({
-      exists: true,
+      success: true,
+      message: 'Usuário criado com sucesso!',
       user: {
-        email: data.user_email,
-        name: data.user_name,
-        plan: data.plan_type,
-        status: data.status,
-        expiresAt: data.end_date,
+        id: authData.user.id,
+        email: email,
+        name: name
       },
+      subscription: {
+        plan: plan,
+        status: 'active',
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
+      }
     });
+
   } catch (error) {
-    console.error('❌ Erro ao verificar usuário:', error);
+    console.error('❌ Erro geral:', error);
     return NextResponse.json(
-      { error: 'Erro ao verificar usuário' },
+      { error: 'Erro interno no servidor' },
       { status: 500 }
     );
   }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase';
+import { createAdminClient } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,31 +15,57 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Buscar assinatura no Supabase
-    const supabase = createClient();
+    // Usar Admin Client para autenticação (SERVICE_ROLE_KEY)
+    const supabase = createAdminClient();
     
-    const { data: subscription, error: fetchError } = await supabase
+    // Autenticar via Supabase Auth usando signInWithPassword
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError || !authData.user) {
+      console.error('❌ Erro na autenticação:', authError?.message);
+      return NextResponse.json(
+        { error: 'Email ou senha incorretos' },
+        { status: 401 }
+      );
+    }
+
+    console.log('✅ Autenticação bem-sucedida no Supabase Auth');
+
+    // Buscar assinatura no Supabase (admin client já ignora RLS)
+    const { data: subscriptions, error: fetchError } = await supabase
       .from('subscriptions_complete')
       .select('*')
       .eq('user_email', email)
-      .single();
+      .order('created_at', { ascending: false });
 
-    if (fetchError || !subscription) {
-      console.error('❌ Assinatura não encontrada:', fetchError);
+    if (fetchError) {
+      console.error('❌ Erro ao buscar assinatura:', fetchError);
       return NextResponse.json(
-        { error: 'Email não encontrado ou assinatura inválida' },
-        { status: 401 }
+        { error: 'Erro ao verificar assinatura. Entre em contato com o suporte.' },
+        { status: 500 }
       );
     }
 
-    // Verificar senha (se existir no banco)
-    if (subscription.user_password && subscription.user_password !== password) {
-      console.warn('⚠️ Senha incorreta');
+    if (!subscriptions || subscriptions.length === 0) {
+      console.error('❌ Assinatura não encontrada');
       return NextResponse.json(
-        { error: 'Senha incorreta' },
-        { status: 401 }
+        { error: 'Assinatura não encontrada. Entre em contato com o suporte.' },
+        { status: 403 }
       );
     }
+
+    // Pegar a assinatura mais recente
+    const subscription = subscriptions[0];
+
+    console.log('📋 Assinatura encontrada:', {
+      id: subscription.id,
+      status: subscription.status,
+      plan: subscription.plan_type,
+      end_date: subscription.end_date
+    });
 
     // Verificar status da assinatura
     if (subscription.status !== 'active') {
@@ -72,11 +98,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Criar dados de autenticação
-    const authData = {
+    const authDataCookie = {
       authenticated: true,
       email: subscription.user_email,
       user: {
-        id: subscription.id,
+        id: authData.user.id,
         email: subscription.user_email,
         name: subscription.user_name
       },
@@ -93,13 +119,13 @@ export async function POST(request: NextRequest) {
       { 
         success: true, 
         message: 'Login realizado com sucesso',
-        user: authData.user
+        user: authDataCookie.user
       },
       { status: 200 }
     );
 
     // Setar cookie com dados de autenticação
-    response.cookies.set('palpitepro_auth', JSON.stringify(authData), {
+    response.cookies.set('palpitepro_auth', JSON.stringify(authDataCookie), {
       httpOnly: false, // Precisa ser acessível pelo JavaScript para o dashboard
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
