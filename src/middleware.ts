@@ -5,7 +5,15 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Rotas públicas que não precisam de autenticação
-  const publicRoutes = ['/', '/login', '/api/auth/login', '/api/webhook/pagbank', '/api/subscription/init'];
+  const publicRoutes = [
+    '/', 
+    '/login', 
+    '/checkout',
+    '/success',
+    '/api/auth/login', 
+    '/api/webhook/pagbank', 
+    '/api/subscription/init'
+  ];
   
   if (publicRoutes.some(route => pathname.startsWith(route))) {
     return NextResponse.next();
