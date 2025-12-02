@@ -127,14 +127,18 @@ function CheckoutContent() {
 
       console.log('🔗 Redirecionando para pagamento:', currentPlan.link);
 
-      // CORREÇÃO: Redirecionar diretamente para a página de aguardando pagamento
-      // e abrir o link de pagamento em nova aba
-      router.push(`/aguardando-pagamento?plan=${selectedPlan}&email=${encodeURIComponent(formData.email)}`);
+      // CORREÇÃO: Abrir link de pagamento em nova aba/janela (funciona em mobile)
+      // Usar window.open imediatamente (sem delay) para evitar bloqueio de popup
+      const paymentWindow = window.open(currentPlan.link, '_blank', 'noopener,noreferrer');
       
-      // Abrir link de pagamento após um pequeno delay
-      setTimeout(() => {
-        window.open(currentPlan.link, '_blank');
-      }, 500);
+      // Verificar se o popup foi bloqueado
+      if (!paymentWindow || paymentWindow.closed || typeof paymentWindow.closed === 'undefined') {
+        // Se bloqueado, redirecionar na mesma aba
+        window.location.href = currentPlan.link;
+      } else {
+        // Se abriu com sucesso, redirecionar para página de aguardando
+        router.push(`/aguardando-pagamento?plan=${selectedPlan}&email=${encodeURIComponent(formData.email)}`);
+      }
 
     } catch (error) {
       console.error('❌ Erro no checkout:', error);
