@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Usuário criado no Auth:', authData.user.id);
 
-    // 2. CRIAR ASSINATURA NA TABELA
+    // 2. CRIAR ASSINATURA NA TABELA COM A SENHA
     const startDate = new Date();
     const endDate = new Date();
     
@@ -48,12 +48,13 @@ export async function POST(request: NextRequest) {
       endDate.setMonth(endDate.getMonth() + 1);
     }
 
-    console.log('📝 Criando assinatura na tabela...');
+    console.log('📝 Criando assinatura na tabela com senha...');
     const { data: subscription, error: subError } = await adminSupabase
       .from('subscriptions_complete')
       .insert({
         user_email: email,
         user_name: name,
+        password: password, // ✅ SALVANDO A SENHA NA TABELA
         plan_type: plan,
         status: 'active',
         payment_id: `INIT_${Date.now()}`,
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('✅ Assinatura criada com sucesso!');
+    console.log('✅ Assinatura criada com sucesso com senha salva!');
 
     return NextResponse.json({
       success: true,
