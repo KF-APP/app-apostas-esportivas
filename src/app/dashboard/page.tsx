@@ -261,16 +261,6 @@ export default function DashboardPage() {
             
             <div className="flex items-center gap-2">
               <Button
-                onClick={() => setShowDashboard(!showDashboard)}
-                variant="outline"
-                size="icon"
-                className="border-slate-700 hover:bg-slate-800"
-                title="Painel de Controle"
-              >
-                <BarChart3 className="w-4 h-4" />
-              </Button>
-              
-              <Button
                 onClick={handleLogout}
                 variant="outline"
                 className="border-slate-700 hover:bg-red-900/50 hover:border-red-500"
@@ -686,13 +676,16 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
 
   const getStatusBadge = () => {
     const status = fixture.fixture?.status?.short;
+    const elapsed = fixture.fixture?.status?.elapsed;
 
-    if (status === 'NS') return { text: 'Não iniciado', color: 'bg-slate-700 text-slate-300' };
-    if (status === 'LIVE' || status === '1H' || status === '2H' || status === 'HT')
-      return { text: 'Ao vivo', color: 'bg-red-600 text-white animate-pulse' };
-    if (status === 'FT') return { text: 'Finalizado', color: 'bg-emerald-600 text-white' };
+    if (status === 'NS') return { text: 'Não iniciado', color: 'bg-slate-700 text-slate-300', time: null };
+    if (status === 'LIVE' || status === '1H' || status === '2H' || status === 'HT') {
+      const timeText = elapsed ? `${elapsed}'` : 'Ao vivo';
+      return { text: 'Ao vivo', color: 'bg-red-600 text-white animate-pulse', time: timeText };
+    }
+    if (status === 'FT') return { text: 'Finalizado', color: 'bg-emerald-600 text-white', time: null };
 
-    return { text: 'Aguardando', color: 'bg-gray-600 text-white' };
+    return { text: 'Aguardando', color: 'bg-gray-600 text-white', time: null };
   };
 
   const statusBadge = getStatusBadge();
@@ -705,6 +698,7 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <Badge variant="outline" className={statusBadge.color}>
                 {statusBadge.text}
+                {statusBadge.time && ` • ${statusBadge.time}`}
               </Badge>
               <Badge variant="outline" className="border-slate-700 text-slate-300">
                 <Calendar className="w-3 h-3 mr-1" />
