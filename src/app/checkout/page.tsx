@@ -127,11 +127,19 @@ function CheckoutContent() {
 
       console.log('🔗 Redirecionando para pagamento:', currentPlan.link);
 
-      // Abrir link de pagamento em nova aba (funciona em desktop e mobile)
-      window.open(currentPlan.link, '_blank', 'noopener,noreferrer');
+      // SOLUÇÃO MOBILE: Criar elemento <a> temporário e simular clique
+      const link = document.createElement('a');
+      link.href = currentPlan.link;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
-      // Redirecionar a página atual para aguardando aprovação
-      router.push(`/aguardando-pagamento?plan=${selectedPlan}&email=${encodeURIComponent(formData.email)}`);
+      // Pequeno delay para garantir que o link abriu antes de redirecionar
+      setTimeout(() => {
+        router.push(`/aguardando-pagamento?plan=${selectedPlan}&email=${encodeURIComponent(formData.email)}`);
+      }, 300);
 
     } catch (error) {
       console.error('❌ Erro no checkout:', error);
