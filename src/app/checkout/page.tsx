@@ -117,15 +117,28 @@ function CheckoutContent() {
       // Log de sucesso
       console.log('✅ Usuário criado/atualizado:', result);
 
-      // Abrir link de pagamento do PagBank
-      window.open(currentPlan.link, '_blank');
+      // Verificar se o link de pagamento existe
+      if (!currentPlan.link) {
+        console.error('❌ Link de pagamento não encontrado para o plano:', selectedPlan);
+        alert('Erro: Link de pagamento não configurado. Entre em contato com o suporte.');
+        setLoading(false);
+        return;
+      }
+
+      console.log('🔗 Redirecionando para pagamento:', currentPlan.link);
+
+      // CORREÇÃO: Redirecionar diretamente para a página de aguardando pagamento
+      // e abrir o link de pagamento em nova aba
+      router.push(`/aguardando-pagamento?plan=${selectedPlan}&email=${encodeURIComponent(formData.email)}`);
       
-      // Redirecionar para página de sucesso
-      router.push(`/success?plan=${selectedPlan}&email=${encodeURIComponent(formData.email)}`);
+      // Abrir link de pagamento após um pequeno delay
+      setTimeout(() => {
+        window.open(currentPlan.link, '_blank');
+      }, 500);
+
     } catch (error) {
-      console.error('Erro no checkout:', error);
+      console.error('❌ Erro no checkout:', error);
       alert('Erro ao processar checkout. Tente novamente.');
-    } finally {
       setLoading(false);
     }
   };
