@@ -93,11 +93,11 @@ export function identifyPlanType(amount: number): 'monthly' | 'yearly' {
 }
 
 /**
- * Links de pagamento do PagBank
+ * Links de pagamento da Keoto
  */
 export const PLAN_LINKS = {
-  monthly: 'https://pag.ae/81eTUFyG6',
-  yearly: 'https://pag.ae/81eTXTXM6',
+  monthly: 'https://checkout.keoto.com/9352282d-958a-4145-80a8-5c94bff9a6b9',
+  yearly: 'https://checkout.keoto.com/96505be8-544c-45a9-a7ab-ce083e8f438e',
 };
 
 /**
