@@ -22,7 +22,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import Link from 'next/link';
-import { PLAN_LINKS, PLAN_PRICES } from '@/lib/pagbank';
+import { PLAN_LINKS, PLAN_PRICES } from '@/lib/payment';
 
 type PlanType = 'monthly' | 'yearly';
 
@@ -309,7 +309,7 @@ function CheckoutContent() {
                     <Alert className="bg-blue-500/10 border-blue-500/30">
                       <Lock className="w-4 h-4 text-blue-400" />
                       <AlertDescription className="text-blue-300 text-sm">
-                        Sua conta será criada e ativada automaticamente após a confirmação do pagamento no PagBank
+                        Sua conta será criada e ativada automaticamente após a confirmação do pagamento
                       </AlertDescription>
                     </Alert>
 
@@ -334,7 +334,7 @@ function CheckoutContent() {
 
                     <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
                       <Lock className="w-4 h-4" />
-                      <span>Pagamento 100% seguro via PagBank</span>
+                      <span>Pagamento 100% seguro</span>
                     </div>
                   </div>
                 </CardContent>
@@ -423,7 +423,7 @@ function CheckoutContent() {
                     <div>
                       <h4 className="font-semibold text-emerald-400 mb-1">Acesso Imediato</h4>
                       <p className="text-sm text-slate-300">
-                        Após a confirmação do pagamento no PagBank, sua conta será ativada automaticamente e você poderá fazer login com o email e senha cadastrados.
+                        Após a confirmação do pagamento, sua conta será ativada automaticamente e você poderá fazer login com o email e senha cadastrados.
                       </p>
                     </div>
                   </div>

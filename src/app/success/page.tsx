@@ -103,7 +103,7 @@ function SuccessContent() {
               <Alert className="bg-blue-500/10 border-blue-500/30">
                 <AlertCircle className="w-4 h-4 text-blue-400" />
                 <AlertDescription className="text-blue-300">
-                  <strong>Importante:</strong> Assim que o PagBank confirmar seu pagamento, você receberá um email com as instruções de acesso e seu acesso será liberado automaticamente.
+                  <strong>Importante:</strong> Assim que seu pagamento for confirmado, você receberá um email com as instruções de acesso e seu acesso será liberado automaticamente.
                 </AlertDescription>
               </Alert>
 
@@ -143,7 +143,7 @@ function SuccessContent() {
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Clock className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-                      <span className="text-slate-300">Aguardando confirmação do PagBank</span>
+                      <span className="text-slate-300">Aguardando confirmação do pagamento</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Mail className="w-4 h-4 text-blue-400 flex-shrink-0" />
@@ -160,7 +160,7 @@ function SuccessContent() {
                     <div>
                       <h4 className="font-semibold text-emerald-400 mb-1">Acesso Automático</h4>
                       <p className="text-sm text-slate-300">
-                        Quando o pagamento for confirmado pelo PagBank, seu acesso será liberado automaticamente e você receberá um email com as instruções.
+                        Quando o pagamento for confirmado, seu acesso será liberado automaticamente e você receberá um email com as instruções.
                       </p>
                     </div>
                   </div>
@@ -179,7 +179,7 @@ function SuccessContent() {
                     <div>
                       <h4 className="font-semibold text-white mb-1">Confirmação do Pagamento</h4>
                       <p className="text-sm text-slate-400">
-                        O PagBank processará seu pagamento (geralmente leva alguns minutos)
+                        O processamento do pagamento geralmente leva alguns minutos
                       </p>
                     </div>
                   </div>
