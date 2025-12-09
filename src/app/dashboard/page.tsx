@@ -825,6 +825,7 @@ function createFallbackBet(level: RiskLevel, analysis: MatchAnalysis): BetSugges
       prediction: bothScore ? 'Sim' : 'Não',
       reasoning: `Baseado nas médias de gols: ${analysis.homeTeam.name} (${analysis.homeTeam.avgGoalsScored.toFixed(1)}) e ${analysis.awayTeam.name} (${analysis.awayTeam.avgGoalsScored.toFixed(1)})`,
       confidence: bothScore ? 65 : 60,
+      odds: 1.65,
       riskLevel: 'conservative'
     };
   } else if (level === 'medium') {
@@ -836,6 +837,7 @@ function createFallbackBet(level: RiskLevel, analysis: MatchAnalysis): BetSugges
       prediction: overUnder,
       reasoning: `Média combinada de gols: ${avgTotalGoals.toFixed(1)} gols por jogo`,
       confidence: 58,
+      odds: 1.95,
       riskLevel: 'medium'
     };
   } else {
@@ -848,6 +850,7 @@ function createFallbackBet(level: RiskLevel, analysis: MatchAnalysis): BetSugges
       prediction: `${homeGoals}-${awayGoals}`,
       reasoning: `Baseado nas médias de gols de cada time`,
       confidence: 35,
+      odds: 9.50,
       riskLevel: 'high'
     };
   }
@@ -1039,13 +1042,18 @@ function RiskLevelSection({
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
                     <h5 className="font-semibold text-white">{suggestion.description}</h5>
-                    <p className="text-sm text-slate-400 mt-1">{suggestion.reasoning}</p>
+                    <p className="text-sm text-white mt-1">{suggestion.reasoning}</p>
                   </div>
                   <div className="flex items-center gap-2 ml-2">
-                    <Badge variant="outline" className="border-slate-700">
+                    <Badge variant="outline" className="border-slate-700 text-white">
                       <Target className="w-3 h-3 mr-1" />
                       {suggestion.confidence}%
                     </Badge>
+                    {suggestion.odds && (
+                      <Badge variant="outline" className="border-slate-700 text-white bg-slate-800/50">
+                        ODD: {suggestion.odds.toFixed(2)}
+                      </Badge>
+                    )}
                     {matchFinished && betResult !== null && (
                       <Badge 
                         variant="outline" 
