@@ -15,11 +15,28 @@ import {
   Sparkles,
   ArrowRight,
   Brain,
-  Cpu
+  Cpu,
+  CreditCard,
+  Smartphone
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function LandingPage() {
+  const [monthlyPaymentMethod, setMonthlyPaymentMethod] = useState<'pix' | 'card'>('card');
+  const [yearlyPaymentMethod, setYearlyPaymentMethod] = useState<'pix' | 'card'>('card');
+
+  const paymentLinks = {
+    monthly: {
+      pix: 'https://pag.ae/81okwt4xM',
+      card: 'https://pag.ae/81okxh7cM'
+    },
+    yearly: {
+      pix: 'https://pag.ae/81oky7p4o',
+      card: 'https://pag.ae/81okzzFnJ'
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Header */}
@@ -314,12 +331,46 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <Link href="/checkout?plan=monthly" className="block">
+                {/* Payment Method Selection */}
+                <div className="space-y-3">
+                  <p className="text-sm text-slate-400 text-center">Escolha a forma de pagamento:</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      variant={monthlyPaymentMethod === 'pix' ? 'default' : 'outline'}
+                      className={monthlyPaymentMethod === 'pix' 
+                        ? 'bg-emerald-600 hover:bg-emerald-700' 
+                        : 'border-slate-700 hover:bg-slate-800'
+                      }
+                      onClick={() => setMonthlyPaymentMethod('pix')}
+                    >
+                      <Smartphone className="w-4 h-4 mr-2" />
+                      PIX
+                    </Button>
+                    <Button
+                      variant={monthlyPaymentMethod === 'card' ? 'default' : 'outline'}
+                      className={monthlyPaymentMethod === 'card' 
+                        ? 'bg-emerald-600 hover:bg-emerald-700' 
+                        : 'border-slate-700 hover:bg-slate-800'
+                      }
+                      onClick={() => setMonthlyPaymentMethod('card')}
+                    >
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Cartão
+                    </Button>
+                  </div>
+                </div>
+
+                <a 
+                  href={paymentLinks.monthly[monthlyPaymentMethod]} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="block"
+                >
                   <Button size="lg" variant="outline" className="w-full border-slate-700 hover:bg-slate-800 text-lg py-6">
-                    Começar Agora
+                    Assinar Agora
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
-                </Link>
+                </a>
 
                 <p className="text-center text-sm text-slate-400">
                   Renovação automática mensal
@@ -369,12 +420,46 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <Link href="/checkout?plan=yearly" className="block">
+                {/* Payment Method Selection */}
+                <div className="space-y-3">
+                  <p className="text-sm text-slate-400 text-center">Escolha a forma de pagamento:</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      variant={yearlyPaymentMethod === 'pix' ? 'default' : 'outline'}
+                      className={yearlyPaymentMethod === 'pix' 
+                        ? 'bg-emerald-600 hover:bg-emerald-700' 
+                        : 'border-slate-700 hover:bg-slate-800'
+                      }
+                      onClick={() => setYearlyPaymentMethod('pix')}
+                    >
+                      <Smartphone className="w-4 h-4 mr-2" />
+                      PIX
+                    </Button>
+                    <Button
+                      variant={yearlyPaymentMethod === 'card' ? 'default' : 'outline'}
+                      className={yearlyPaymentMethod === 'card' 
+                        ? 'bg-emerald-600 hover:bg-emerald-700' 
+                        : 'border-slate-700 hover:bg-slate-800'
+                      }
+                      onClick={() => setYearlyPaymentMethod('card')}
+                    >
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Cartão
+                    </Button>
+                  </div>
+                </div>
+
+                <a 
+                  href={paymentLinks.yearly[yearlyPaymentMethod]} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="block"
+                >
                   <Button size="lg" className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-lg py-6">
                     Garantir Desconto Anual
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
-                </Link>
+                </a>
 
                 <p className="text-center text-sm text-slate-400">
                   Pagamento único anual • Melhor custo-benefício

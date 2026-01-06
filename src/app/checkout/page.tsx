@@ -19,18 +19,32 @@ import {
   Loader2,
   Star,
   AlertCircle,
-  ExternalLink
+  QrCode
 } from 'lucide-react';
 import Link from 'next/link';
-import { PLAN_LINKS, PLAN_PRICES } from '@/lib/payment';
+import { PLAN_PRICES } from '@/lib/payment';
 
 type PlanType = 'monthly' | 'yearly';
+type PaymentMethod = 'pix' | 'card';
+
+// Links de pagamento atualizados
+const PAYMENT_LINKS = {
+  monthly: {
+    pix: 'https://pag.ae/81okwt4xM',
+    card: 'https://pag.ae/81okxh7cM',
+  },
+  yearly: {
+    pix: 'https://pag.ae/81oky7p4o',
+    card: 'https://pag.ae/81okzzFnJ',
+  },
+};
 
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('yearly');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -57,7 +71,6 @@ function CheckoutContent() {
       priceFormatted: `R$ ${PLAN_PRICES.monthly.toFixed(2).replace('.', ',')}`,
       period: '/mês',
       description: 'Renovação automática mensal',
-      link: PLAN_LINKS.monthly,
     },
     yearly: {
       name: 'Plano Anual',
@@ -66,13 +79,12 @@ function CheckoutContent() {
       period: '/ano',
       description: 'Pagamento único anual',
       savings: 'Economize R$ 61,80 (17%)',
-      link: PLAN_LINKS.yearly,
     },
   };
 
   const currentPlan = plans[selectedPlan];
 
-  const handleProceedToPayment = async () => {
+  const handleProceedToPayment = async (paymentMethod: PaymentMethod) => {
     if (!formData.name || !formData.email || !formData.password) {
       alert('Por favor, preencha todos os campos');
       return;
@@ -84,6 +96,7 @@ function CheckoutContent() {
     }
 
     setLoading(true);
+    setSelectedPaymentMethod(paymentMethod);
 
     try {
       // Salvar dados do usuário no localStorage temporariamente
@@ -92,6 +105,7 @@ function CheckoutContent() {
         email: formData.email,
         password: formData.password,
         plan: selectedPlan,
+        paymentMethod,
         timestamp: new Date().toISOString(),
       }));
 
@@ -117,19 +131,22 @@ function CheckoutContent() {
       // Log de sucesso
       console.log('✅ Usuário criado/atualizado:', result);
 
-      // Verificar se o link de pagamento existe
-      if (!currentPlan.link) {
-        console.error('❌ Link de pagamento não encontrado para o plano:', selectedPlan);
+      // Obter link de pagamento correto
+      const paymentLink = PAYMENT_LINKS[selectedPlan][paymentMethod];
+
+      if (!paymentLink) {
+        console.error('❌ Link de pagamento não encontrado');
         alert('Erro: Link de pagamento não configurado. Entre em contato com o suporte.');
         setLoading(false);
+        setSelectedPaymentMethod(null);
         return;
       }
 
-      console.log('🔗 Redirecionando para pagamento:', currentPlan.link);
+      console.log('🔗 Redirecionando para pagamento:', paymentLink);
 
       // SOLUÇÃO MOBILE: Criar elemento <a> temporário e simular clique
       const link = document.createElement('a');
-      link.href = currentPlan.link;
+      link.href = paymentLink;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
       document.body.appendChild(link);
@@ -145,6 +162,7 @@ function CheckoutContent() {
       console.error('❌ Erro no checkout:', error);
       alert('Erro ao processar checkout. Tente novamente.');
       setLoading(false);
+      setSelectedPaymentMethod(null);
     }
   };
 
@@ -152,6 +170,8 @@ function CheckoutContent() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  const isFormValid = formData.name && formData.email && formData.password && formData.password.length >= 6;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
@@ -313,24 +333,55 @@ function CheckoutContent() {
                       </AlertDescription>
                     </Alert>
 
-                    <Button 
-                      onClick={handleProceedToPayment}
-                      size="lg" 
-                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
-                      disabled={loading || !formData.name || !formData.email || !formData.password}
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Processando...
-                        </>
-                      ) : (
-                        <>
-                          <ExternalLink className="w-5 h-5 mr-2" />
-                          Ir para Pagamento - {currentPlan.priceFormatted}
-                        </>
-                      )}
-                    </Button>
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium text-slate-300 text-center">
+                        Escolha a forma de pagamento:
+                      </p>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button 
+                          onClick={() => handleProceedToPayment('pix')}
+                          size="lg" 
+                          className="bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700"
+                          disabled={loading || !isFormValid}
+                        >
+                          {loading && selectedPaymentMethod === 'pix' ? (
+                            <>
+                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                              Processando...
+                            </>
+                          ) : (
+                            <>
+                              <QrCode className="w-5 h-5 mr-2" />
+                              PIX
+                            </>
+                          )}
+                        </Button>
+
+                        <Button 
+                          onClick={() => handleProceedToPayment('card')}
+                          size="lg" 
+                          className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+                          disabled={loading || !isFormValid}
+                        >
+                          {loading && selectedPaymentMethod === 'card' ? (
+                            <>
+                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                              Processando...
+                            </>
+                          ) : (
+                            <>
+                              <CreditCard className="w-5 h-5 mr-2" />
+                              Cartão
+                            </>
+                          )}
+                        </Button>
+                      </div>
+
+                      <p className="text-xs text-center text-slate-400">
+                        {currentPlan.priceFormatted} {currentPlan.period}
+                      </p>
+                    </div>
 
                     <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
                       <Lock className="w-4 h-4" />
