@@ -54,6 +54,11 @@ export default function LandingPage() {
             </div>
             
             <div className="flex items-center gap-3">
+              <Link href="/dashboard">
+                <Button variant="ghost" className="hover:bg-slate-800 text-slate-300">
+                  Ver Palpites
+                </Button>
+              </Link>
               <Link href="/login">
                 <Button variant="outline" className="border-slate-700 hover:bg-slate-800">
                   Entrar
