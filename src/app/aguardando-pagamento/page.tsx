@@ -15,9 +15,22 @@ import {
   Loader2,
   Clock,
   AlertCircle,
-  ExternalLink
+  ExternalLink,
+  QrCode,
+  CreditCard
 } from 'lucide-react';
-import { PLAN_LINKS } from '@/lib/payment';
+
+// Links de pagamento atualizados
+const PAYMENT_LINKS = {
+  monthly: {
+    pix: 'https://pag.ae/81okwt4xM',
+    card: 'https://pag.ae/81okxh7cM',
+  },
+  yearly: {
+    pix: 'https://pag.ae/81oky7p4o',
+    card: 'https://pag.ae/81okzzFnJ',
+  },
+};
 
 function AguardandoPagamentoContent() {
   const router = useRouter();
@@ -50,9 +63,9 @@ function AguardandoPagamentoContent() {
     router.push('/login');
   };
 
-  const handleOpenPayment = () => {
+  const handleOpenPayment = (paymentMethod: 'pix' | 'card') => {
     if (checkoutData?.plan) {
-      const paymentLink = PLAN_LINKS[checkoutData.plan as keyof typeof PLAN_LINKS];
+      const paymentLink = PAYMENT_LINKS[checkoutData.plan as keyof typeof PAYMENT_LINKS]?.[paymentMethod];
       if (paymentLink) {
         window.open(paymentLink, '_blank');
       }
@@ -124,15 +137,24 @@ function AguardandoPagamentoContent() {
                     <div>
                       <h4 className="font-semibold text-orange-400 mb-2">Ainda não pagou?</h4>
                       <p className="text-sm text-slate-300 mb-4">
-                        Se a página de pagamento não abriu automaticamente, clique no botão abaixo
+                        Se a página de pagamento não abriu automaticamente, escolha sua forma de pagamento abaixo
                       </p>
-                      <Button 
-                        onClick={handleOpenPayment}
-                        className="bg-orange-500 hover:bg-orange-600 text-white"
-                      >
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        Abrir Página de Pagamento
-                      </Button>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button 
+                          onClick={() => handleOpenPayment('pix')}
+                          className="bg-teal-500 hover:bg-teal-600 text-white"
+                        >
+                          <QrCode className="w-4 h-4 mr-2" />
+                          Pagar com PIX
+                        </Button>
+                        <Button 
+                          onClick={() => handleOpenPayment('card')}
+                          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                        >
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Pagar com Cartão
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
