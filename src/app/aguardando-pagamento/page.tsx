@@ -142,14 +142,14 @@ function AguardandoPagamentoContent() {
                       <div className="grid grid-cols-2 gap-3">
                         <Button 
                           onClick={() => handleOpenPayment('pix')}
-                          className="bg-teal-500 hover:bg-teal-600 text-white"
+                          className="bg-teal-500 hover:bg-teal-600 text-white font-medium"
                         >
                           <QrCode className="w-4 h-4 mr-2" />
                           Pagar com PIX
                         </Button>
                         <Button 
                           onClick={() => handleOpenPayment('card')}
-                          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                          className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium"
                         >
                           <CreditCard className="w-4 h-4 mr-2" />
                           Pagar com Cartão
