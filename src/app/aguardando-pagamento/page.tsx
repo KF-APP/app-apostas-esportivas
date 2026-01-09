@@ -23,8 +23,8 @@ import {
 // Links de pagamento atualizados
 const PAYMENT_LINKS = {
   monthly: {
-    pix: 'https://pag.ae/81okwt4xM',
-    card: 'https://pag.ae/81okxh7cM',
+    pix: 'https://pag.ae/81oMp4aB9',
+    card: 'https://pag.ae/81oMoCS4p',
   },
   yearly: {
     pix: 'https://pag.ae/81oky7p4o',
