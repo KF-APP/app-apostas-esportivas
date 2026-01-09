@@ -30,8 +30,8 @@ type PaymentMethod = 'pix' | 'card';
 // Links de pagamento atualizados
 const PAYMENT_LINKS = {
   monthly: {
-    pix: 'https://pag.ae/81okwt4xM',
-    card: 'https://pag.ae/81okxh7cM',
+    pix: 'https://pag.ae/81oMp4aB9',
+    card: 'https://pag.ae/81oMoCS4p',
   },
   yearly: {
     pix: 'https://pag.ae/81oky7p4o',
@@ -68,7 +68,7 @@ function CheckoutContent() {
     monthly: {
       name: 'Plano Mensal',
       price: PLAN_PRICES.monthly,
-      priceFormatted: `R$ ${PLAN_PRICES.monthly.toFixed(2).replace('.', ',')}`,
+      priceFormatted: `R$ 39,90`,
       period: '/mês',
       description: 'Renovação automática mensal',
     },
@@ -78,7 +78,7 @@ function CheckoutContent() {
       priceFormatted: `R$ ${PLAN_PRICES.yearly.toFixed(2).replace('.', ',')}`,
       period: '/ano',
       description: 'Pagamento único anual',
-      savings: 'Economize R$ 61,80 (17%)',
+      savings: 'Economize R$ 181,80 (38%)',
     },
   };
 
@@ -233,7 +233,7 @@ function CheckoutContent() {
                           <RadioGroupItem value="monthly" id="monthly" />
                           <div>
                             <p className="font-semibold text-white">Plano Mensal</p>
-                            <p className="text-sm text-slate-400">R$ 29,90/mês</p>
+                            <p className="text-sm text-slate-400">R$ 39,90/mês</p>
                           </div>
                         </div>
                       </label>
@@ -248,7 +248,7 @@ function CheckoutContent() {
                       >
                         <Badge className="absolute -top-2 -right-2 bg-emerald-500 text-white">
                           <Star className="w-3 h-3 mr-1" />
-                          Economize 17%
+                          Economize 38%
                         </Badge>
                         <div className="flex items-center gap-3">
                           <RadioGroupItem value="yearly" id="yearly" />
@@ -453,7 +453,7 @@ function CheckoutContent() {
                       {selectedPlan === 'yearly' && (
                         <div className="flex justify-between text-emerald-400 text-sm">
                           <span>Desconto anual</span>
-                          <span>-R$ 61,80</span>
+                          <span>-R$ 181,80</span>
                         </div>
                       )}
                       <Separator className="bg-slate-800" />

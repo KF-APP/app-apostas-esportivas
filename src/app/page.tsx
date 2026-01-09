@@ -15,20 +15,15 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LandingPage() {
+  const router = useRouter();
   const [monthlyPaymentMethod, setMonthlyPaymentMethod] = useState<'pix' | 'card'>('card');
   const [yearlyPaymentMethod, setYearlyPaymentMethod] = useState<'pix' | 'card'>('card');
 
-  const paymentLinks = {
-    monthly: {
-      pix: 'https://pag.ae/81okwt4xM',
-      card: 'https://pag.ae/81okxh7cM'
-    },
-    yearly: {
-      pix: 'https://pag.ae/81oky7p4o',
-      card: 'https://pag.ae/81okzzFnJ'
-    }
+  const handleSelectPlan = (plan: 'monthly' | 'yearly') => {
+    router.push(`/checkout?plan=${plan}`);
   };
 
   return (
@@ -77,6 +72,10 @@ export default function LandingPage() {
               </Button>
             </a>
           </div>
+
+          <p className="text-lg text-slate-300 pt-2">
+            Use antes do próximo jogo e decida com dados.
+          </p>
         </div>
       </section>
 
@@ -251,22 +250,24 @@ export default function LandingPage() {
                     <p className="text-sm text-slate-300 text-center font-medium">Escolha a forma de pagamento:</p>
                     <div className="grid grid-cols-2 gap-3">
                       <Button
-                        variant={monthlyPaymentMethod === 'pix' ? 'default' : 'outline'}
-                        className={monthlyPaymentMethod === 'pix' 
-                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                          : 'border-slate-600 hover:bg-slate-700/50 text-slate-100 hover:text-white font-medium'
-                        }
+                        variant="outline"
+                        className={`${
+                          monthlyPaymentMethod === 'pix'
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
+                            : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
+                        }`}
                         onClick={() => setMonthlyPaymentMethod('pix')}
                       >
                         <Smartphone className="w-4 h-4 mr-2" />
                         PIX
                       </Button>
                       <Button
-                        variant={monthlyPaymentMethod === 'card' ? 'default' : 'outline'}
-                        className={monthlyPaymentMethod === 'card' 
-                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                          : 'border-slate-600 hover:bg-slate-700/50 text-slate-100 hover:text-white font-medium'
-                        }
+                        variant="outline"
+                        className={`${
+                          monthlyPaymentMethod === 'card'
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
+                            : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
+                        }`}
                         onClick={() => setMonthlyPaymentMethod('card')}
                       >
                         <CreditCard className="w-4 h-4 mr-2" />
@@ -275,17 +276,14 @@ export default function LandingPage() {
                     </div>
                   </div>
 
-                  <a 
-                    href={paymentLinks.monthly[monthlyPaymentMethod]} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="block"
+                  <Button 
+                    size="lg" 
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg py-6"
+                    onClick={() => handleSelectPlan('monthly')}
                   >
-                    <Button size="lg" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg py-6">
-                      Analisar jogos com dados
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </a>
+                    Analisar jogos com dados
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -337,22 +335,24 @@ export default function LandingPage() {
                     <p className="text-sm text-slate-300 text-center font-medium">Escolha a forma de pagamento:</p>
                     <div className="grid grid-cols-2 gap-3">
                       <Button
-                        variant={yearlyPaymentMethod === 'pix' ? 'default' : 'outline'}
-                        className={yearlyPaymentMethod === 'pix' 
-                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                          : 'border-slate-600 hover:bg-slate-700/50 text-slate-100 hover:text-white font-medium'
-                        }
+                        variant="outline"
+                        className={`${
+                          yearlyPaymentMethod === 'pix'
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
+                            : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
+                        }`}
                         onClick={() => setYearlyPaymentMethod('pix')}
                       >
                         <Smartphone className="w-4 h-4 mr-2" />
                         PIX
                       </Button>
                       <Button
-                        variant={yearlyPaymentMethod === 'card' ? 'default' : 'outline'}
-                        className={yearlyPaymentMethod === 'card' 
-                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                          : 'border-slate-600 hover:bg-slate-700/50 text-slate-100 hover:text-white font-medium'
-                        }
+                        variant="outline"
+                        className={`${
+                          yearlyPaymentMethod === 'card'
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
+                            : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
+                        }`}
                         onClick={() => setYearlyPaymentMethod('card')}
                       >
                         <CreditCard className="w-4 h-4 mr-2" />
@@ -361,17 +361,14 @@ export default function LandingPage() {
                     </div>
                   </div>
 
-                  <a 
-                    href={paymentLinks.yearly[yearlyPaymentMethod]} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="block"
+                  <Button 
+                    size="lg" 
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg py-6"
+                    onClick={() => handleSelectPlan('yearly')}
                   >
-                    <Button size="lg" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg py-6">
-                      Analisar jogos com dados
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </a>
+                    Analisar jogos com dados
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
                 </CardContent>
               </Card>
             </div>

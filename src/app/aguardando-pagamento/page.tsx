@@ -37,6 +37,7 @@ function AguardandoPagamentoContent() {
   const searchParams = useSearchParams();
   const [checkoutData, setCheckoutData] = useState<any>(null);
   const [checking, setChecking] = useState(true);
+  const [selectedMethod, setSelectedMethod] = useState<'pix' | 'card'>('pix');
 
   useEffect(() => {
     const email = searchParams.get('email');
@@ -141,18 +142,28 @@ function AguardandoPagamentoContent() {
                       </p>
                       <div className="grid grid-cols-2 gap-3">
                         <Button 
-                          onClick={() => handleOpenPayment('pix')}
-                          className="bg-teal-500 hover:bg-teal-600 text-white font-medium"
+                          onClick={() => {
+                            setSelectedMethod('pix');
+                            handleOpenPayment('pix');
+                          }}
+                          className={`bg-emerald-500 hover:bg-emerald-500 text-white font-medium transition-all ${
+                            selectedMethod === 'pix' ? 'ring-2 ring-blue-600' : ''
+                          }`}
                         >
                           <QrCode className="w-4 h-4 mr-2" />
-                          Pagar com PIX
+                          PIX
                         </Button>
                         <Button 
-                          onClick={() => handleOpenPayment('card')}
-                          className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium"
+                          onClick={() => {
+                            setSelectedMethod('card');
+                            handleOpenPayment('card');
+                          }}
+                          className={`bg-emerald-500 hover:bg-emerald-500 text-white font-medium transition-all ${
+                            selectedMethod === 'card' ? 'ring-2 ring-blue-600' : ''
+                          }`}
                         >
                           <CreditCard className="w-4 h-4 mr-2" />
-                          Pagar com Cartão
+                          Cartão
                         </Button>
                       </div>
                     </div>
