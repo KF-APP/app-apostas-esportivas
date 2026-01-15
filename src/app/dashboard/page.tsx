@@ -129,8 +129,8 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-emerald-500 mx-auto mb-4" />
-          <p className="text-slate-400">Verificando acesso...</p>
+          <Loader2 className="w-8 h-8 sm:w-12 sm:h-12 animate-spin text-emerald-500 mx-auto mb-3 sm:mb-4" />
+          <p className="text-xs sm:text-base text-slate-400">Verificando acesso...</p>
         </div>
       </div>
     );
@@ -247,98 +247,103 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 py-2 sm:px-4 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-2 rounded-xl">
-                <Trophy className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-1.5 sm:p-2 rounded-lg sm:rounded-xl">
+                <Trophy className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">PalpitePro</h1>
-                <p className="text-sm text-slate-400">Análises com Inteligência Artificial</p>
+                <h1 className="text-base sm:text-2xl font-bold text-white">PalpitePro</h1>
+                <p className="text-[10px] sm:text-sm text-slate-400 hidden sm:block">Análises com Inteligência Artificial</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <Button
                 onClick={handleLogout}
                 variant="outline"
-                className="border-slate-700 hover:bg-red-900/50 hover:border-red-500"
+                size="sm"
+                className="border-slate-700 hover:bg-red-900/50 hover:border-red-500 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 h-7 sm:h-9"
               >
-                <LogOut className="w-4 h-4 mr-2" />
-                Sair
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Sair</span>
               </Button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-3 py-3 sm:px-4 sm:py-6">
         {showDashboard ? (
           <DashboardView stats={dashStats} onClose={() => setShowDashboard(false)} />
         ) : (
-          <Tabs value={selectedSport} onValueChange={setSelectedSport} className="space-y-6">
-            <TabsList className="bg-slate-900 border border-slate-800">
-              <TabsTrigger value="football" className="data-[state=active]:bg-emerald-600">
-                <Trophy className="w-4 h-4 mr-2" />
+          <Tabs value={selectedSport} onValueChange={setSelectedSport} className="space-y-3 sm:space-y-6">
+            <TabsList className="bg-slate-900 border border-slate-800 h-8 sm:h-10">
+              <TabsTrigger value="football" className="data-[state=active]:bg-emerald-600 text-xs sm:text-sm px-2 sm:px-3">
+                <Trophy className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 Futebol
               </TabsTrigger>
-              <TabsTrigger value="basketball" disabled className="opacity-50">
-                Basquete (Em breve)
+              <TabsTrigger value="basketball" disabled className="opacity-50 text-xs sm:text-sm px-2 sm:px-3">
+                Basquete
               </TabsTrigger>
-              <TabsTrigger value="tennis" disabled className="opacity-50">
-                Tênis (Em breve)
+              <TabsTrigger value="tennis" disabled className="opacity-50 text-xs sm:text-sm px-2 sm:px-3">
+                Tênis
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="football" className="space-y-6">
+            <TabsContent value="football" className="space-y-3 sm:space-y-6">
               <Card className="bg-slate-900/50 border-slate-800">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-emerald-500" />
+                <CardHeader className="pb-2 sm:pb-4">
+                  <CardTitle className="text-white flex items-center gap-2 text-sm sm:text-base">
+                    <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
                     Filtros
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-slate-300">Status</h3>
+                <CardContent className="space-y-3 sm:space-y-6">
+                  <div className="space-y-2 sm:space-y-3">
+                    <h3 className="text-xs sm:text-sm font-semibold text-slate-300">Status</h3>
                     <Button
                       variant={showLiveOnly ? 'default' : 'outline'}
+                      size="sm"
                       onClick={() => setShowLiveOnly(!showLiveOnly)}
-                      className={showLiveOnly ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'border-slate-700 hover:bg-slate-800'}
+                      className={`text-xs sm:text-sm h-7 sm:h-9 ${showLiveOnly ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'border-slate-700 hover:bg-slate-800'}`}
                     >
-                      <Radio className="w-4 h-4 mr-2" />
+                      <Radio className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                       Ao Vivo {liveMatchesCount > 0 && `(${liveMatchesCount})`}
                     </Button>
                   </div>
 
                   <Separator className="bg-slate-800" />
 
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-slate-300">Categoria</h3>
-                    <div className="flex gap-2">
+                  <div className="space-y-2 sm:space-y-3">
+                    <h3 className="text-xs sm:text-sm font-semibold text-slate-300">Categoria</h3>
+                    <div className="flex gap-1.5 sm:gap-2">
                       <Button
                         variant={selectedGender === 'all' ? 'default' : 'outline'}
+                        size="sm"
                         onClick={() => setSelectedGender('all')}
-                        className={selectedGender === 'all' ? 'bg-emerald-600 hover:bg-emerald-700' : 'border-slate-700 hover:bg-slate-800'}
+                        className={`text-xs sm:text-sm h-7 sm:h-9 ${selectedGender === 'all' ? 'bg-emerald-600 hover:bg-emerald-700' : 'border-slate-700 hover:bg-slate-800'}`}
                       >
-                        <Users className="w-4 h-4 mr-2" />
+                        <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                         Todos
                       </Button>
                       <Button
                         variant={selectedGender === 'male' ? 'default' : 'outline'}
+                        size="sm"
                         onClick={() => setSelectedGender('male')}
-                        className={selectedGender === 'male' ? 'bg-blue-600 hover:bg-blue-700' : 'border-slate-700 hover:bg-slate-800'}
+                        className={`text-xs sm:text-sm h-7 sm:h-9 ${selectedGender === 'male' ? 'bg-blue-600 hover:bg-blue-700' : 'border-slate-700 hover:bg-slate-800'}`}
                       >
-                        <User className="w-4 h-4 mr-2" />
+                        <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                         Masculino
                       </Button>
                       <Button
                         variant={selectedGender === 'female' ? 'default' : 'outline'}
+                        size="sm"
                         onClick={() => setSelectedGender('female')}
-                        className={selectedGender === 'female' ? 'bg-pink-600 hover:bg-pink-700' : 'border-slate-700 hover:bg-slate-800'}
+                        className={`text-xs sm:text-sm h-7 sm:h-9 ${selectedGender === 'female' ? 'bg-pink-600 hover:bg-pink-700' : 'border-slate-700 hover:bg-slate-800'}`}
                       >
-                        <User className="w-4 h-4 mr-2" />
+                        <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                         Feminino
                       </Button>
                     </div>
@@ -347,31 +352,31 @@ export default function DashboardPage() {
                   <Separator className="bg-slate-800" />
 
                   {leaguesToDisplay.length > 0 && (
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-slate-300">
-                          Ligas ({leaguesToDisplay.length} disponíveis)
+                        <h3 className="text-xs sm:text-sm font-semibold text-slate-300">
+                          Ligas ({leaguesToDisplay.length})
                         </h3>
                         {selectedLeague && (
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setSelectedLeague(null)}
-                            className="text-emerald-400 hover:text-emerald-300 hover:bg-slate-800"
+                            className="text-emerald-400 hover:text-emerald-300 hover:bg-slate-800 text-xs sm:text-sm h-6 sm:h-8"
                           >
-                            Limpar filtro
+                            Limpar
                           </Button>
                         )}
                       </div>
 
-                      <ScrollArea className="h-[300px] pr-4">
-                        <div className="space-y-2">
+                      <ScrollArea className="h-[200px] sm:h-[300px] pr-2 sm:pr-4">
+                        <div className="space-y-1.5 sm:space-y-2">
                           {leaguesToDisplay.filter(l => l.isPriority).length > 0 && (
                             <>
-                              <div className="flex items-center gap-2 mb-2">
-                                <Flame className="w-4 h-4 text-orange-500" />
-                                <span className="text-xs font-semibold text-orange-400 uppercase tracking-wide">
-                                  Ligas Principais
+                              <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                                <Flame className="w-3 h-3 sm:w-4 sm:h-4 text-orange-500" />
+                                <span className="text-[10px] sm:text-xs font-semibold text-orange-400 uppercase tracking-wide">
+                                  Principais
                                 </span>
                               </div>
                               {leaguesToDisplay
@@ -380,33 +385,34 @@ export default function DashboardPage() {
                                   <Button
                                     key={league.id}
                                     variant={selectedLeague === league.id ? 'default' : 'outline'}
+                                    size="sm"
                                     onClick={() => setSelectedLeague(selectedLeague === league.id ? null : league.id)}
-                                    className={`w-full justify-start ${
+                                    className={`w-full justify-start text-xs sm:text-sm h-7 sm:h-9 ${
                                       selectedLeague === league.id 
                                         ? 'bg-emerald-600 hover:bg-emerald-700' 
                                         : 'border-slate-700 hover:bg-slate-800'
                                     }`}
                                   >
-                                    <Trophy className="w-4 h-4 mr-2 text-orange-400" />
-                                    <span className="flex-1 text-left">{league.name}</span>
-                                    <Badge variant="outline" className="ml-2 border-slate-600 text-slate-400">
+                                    <Trophy className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 text-orange-400" />
+                                    <span className="flex-1 text-left truncate">{league.name}</span>
+                                    <Badge variant="outline" className="ml-1 sm:ml-2 border-slate-600 text-slate-400 text-[10px] sm:text-xs px-1 sm:px-2">
                                       {league.country}
                                     </Badge>
                                   </Button>
                                 ))}
                               
                               {leaguesToDisplay.filter(l => !l.isPriority).length > 0 && (
-                                <Separator className="bg-slate-800 my-4" />
+                                <Separator className="bg-slate-800 my-2 sm:my-4" />
                               )}
                             </>
                           )}
 
                           {leaguesToDisplay.filter(l => !l.isPriority).length > 0 && (
                             <>
-                              <div className="flex items-center gap-2 mb-2">
-                                <Trophy className="w-4 h-4 text-slate-500" />
-                                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-                                  Outras Ligas
+                              <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                                <Trophy className="w-3 h-3 sm:w-4 sm:h-4 text-slate-500" />
+                                <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                                  Outras
                                 </span>
                               </div>
                               {leaguesToDisplay
@@ -415,16 +421,17 @@ export default function DashboardPage() {
                                   <Button
                                     key={league.id}
                                     variant={selectedLeague === league.id ? 'default' : 'outline'}
+                                    size="sm"
                                     onClick={() => setSelectedLeague(selectedLeague === league.id ? null : league.id)}
-                                    className={`w-full justify-start ${
+                                    className={`w-full justify-start text-xs sm:text-sm h-7 sm:h-9 ${
                                       selectedLeague === league.id 
                                         ? 'bg-emerald-600 hover:bg-emerald-700' 
                                         : 'border-slate-700 hover:bg-slate-800'
                                     }`}
                                   >
-                                    <Trophy className="w-4 h-4 mr-2" />
-                                    <span className="flex-1 text-left">{league.name}</span>
-                                    <Badge variant="outline" className="ml-2 border-slate-600 text-slate-400">
+                                    <Trophy className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                                    <span className="flex-1 text-left truncate">{league.name}</span>
+                                    <Badge variant="outline" className="ml-1 sm:ml-2 border-slate-600 text-slate-400 text-[10px] sm:text-xs px-1 sm:px-2">
                                       {league.country}
                                     </Badge>
                                   </Button>
@@ -438,24 +445,24 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <div className="space-y-4">
+              <div className="space-y-2 sm:space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                      <Calendar className="w-6 h-6 text-emerald-500" />
-                      {showLiveOnly ? 'Jogos Ao Vivo' : 'Jogos de Hoje e Ao Vivo'}
+                    <h2 className="text-base sm:text-2xl font-bold text-white flex items-center gap-1.5 sm:gap-2">
+                      <Calendar className="w-4 h-4 sm:w-6 sm:h-6 text-emerald-500" />
+                      {showLiveOnly ? 'Ao Vivo' : 'Hoje'}
                     </h2>
-                    <p className="text-sm text-slate-400 mt-1 capitalize">{formattedDate}</p>
+                    <p className="text-[10px] sm:text-sm text-slate-400 mt-0.5 sm:mt-1 capitalize hidden sm:block">{formattedDate}</p>
                   </div>
                   <Button 
                     onClick={loadTodayFixtures}
                     variant="outline"
                     size="sm"
-                    className="border-slate-700"
+                    className="border-slate-700 text-xs sm:text-sm h-7 sm:h-9"
                     disabled={loadingFixtures}
                   >
                     {loadingFixtures ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 animate-spin" />
                     ) : null}
                     Atualizar
                   </Button>
@@ -463,26 +470,26 @@ export default function DashboardPage() {
 
                 {loadingFixtures ? (
                   <Card className="bg-slate-900/50 border-slate-800">
-                    <CardContent className="py-12 text-center">
-                      <div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4" />
-                      <p className="text-slate-400">Carregando jogos do dia...</p>
+                    <CardContent className="py-8 sm:py-12 text-center">
+                      <div className="animate-spin w-6 h-6 sm:w-8 sm:h-8 border-4 border-emerald-500 border-t-transparent rounded-full mx-auto mb-3 sm:mb-4" />
+                      <p className="text-xs sm:text-base text-slate-400">Carregando...</p>
                     </CardContent>
                   </Card>
                 ) : fixtures.length === 0 ? (
                   <Card className="bg-slate-900/50 border-slate-800">
-                    <CardContent className="py-12 text-center">
-                      <Trophy className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-                      <p className="text-slate-400">
-                        Nenhum jogo encontrado para hoje
+                    <CardContent className="py-8 sm:py-12 text-center">
+                      <Trophy className="w-8 h-8 sm:w-12 sm:h-12 text-slate-600 mx-auto mb-3 sm:mb-4" />
+                      <p className="text-xs sm:text-base text-slate-400">
+                        Nenhum jogo encontrado
                       </p>
                     </CardContent>
                   </Card>
                 ) : displayedGroups.length === 0 ? (
                   <Card className="bg-slate-900/50 border-slate-800">
-                    <CardContent className="py-12 text-center">
-                      <Radio className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-                      <p className="text-slate-400">
-                        {showLiveOnly ? 'Nenhum jogo ao vivo no momento' : 'Nenhum jogo encontrado com os filtros selecionados'}
+                    <CardContent className="py-8 sm:py-12 text-center">
+                      <Radio className="w-8 h-8 sm:w-12 sm:h-12 text-slate-600 mx-auto mb-3 sm:mb-4" />
+                      <p className="text-xs sm:text-base text-slate-400">
+                        {showLiveOnly ? 'Nenhum jogo ao vivo' : 'Nenhum jogo com os filtros'}
                       </p>
                       <Button
                         onClick={() => {
@@ -492,45 +499,45 @@ export default function DashboardPage() {
                         }}
                         variant="outline"
                         size="sm"
-                        className="mt-4 border-slate-700"
+                        className="mt-3 sm:mt-4 border-slate-700 text-xs sm:text-sm"
                       >
                         Limpar filtros
                       </Button>
                     </CardContent>
                   </Card>
                 ) : (
-                  <div className="space-y-2">
-                    <p className="text-sm text-slate-400">
-                      Exibindo {displayedGroups.reduce((acc, g) => acc + g.fixtures.length, 0)} jogo(s) de {displayedGroups.length} liga(s)
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <p className="text-[10px] sm:text-sm text-slate-400">
+                      {displayedGroups.reduce((acc, g) => acc + g.fixtures.length, 0)} jogo(s) de {displayedGroups.length} liga(s)
                     </p>
                     
-                    <div className="space-y-6">
+                    <div className="space-y-3 sm:space-y-6">
                       {displayedGroups.map(group => (
-                        <div key={group.league.id} className="space-y-3">
-                          <div className="flex items-center gap-3 p-4 bg-slate-900/70 rounded-lg border border-slate-800">
+                        <div key={group.league.id} className="space-y-2 sm:space-y-3">
+                          <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-4 bg-slate-900/70 rounded-lg border border-slate-800">
                             {group.isPriority ? (
-                              <Flame className="w-6 h-6 text-orange-500" />
+                              <Flame className="w-4 h-4 sm:w-6 sm:h-6 text-orange-500" />
                             ) : (
-                              <Trophy className="w-6 h-6 text-emerald-500" />
+                              <Trophy className="w-4 h-4 sm:w-6 sm:h-6 text-emerald-500" />
                             )}
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <h3 className="text-lg font-bold text-white">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5 sm:gap-2">
+                                <h3 className="text-sm sm:text-lg font-bold text-white truncate">
                                   {group.league.name}
                                 </h3>
                                 {group.isPriority && (
-                                  <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">
+                                  <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] sm:text-xs px-1 sm:px-2">
                                     Destaque
                                   </Badge>
                                 )}
                               </div>
-                              <p className="text-sm text-slate-400">
+                              <p className="text-[10px] sm:text-sm text-slate-400">
                                 {group.league.country} • {group.fixtures.length} jogo(s)
                               </p>
                             </div>
                           </div>
 
-                          <div className="grid gap-4">
+                          <div className="grid gap-2 sm:gap-4">
                             {group.fixtures.map(fixture => (
                               <MatchCard 
                                 key={`${fixture.fixture.id}-${fixture.teams.home.id}-${fixture.teams.away.id}`} 
@@ -692,54 +699,54 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
 
   return (
     <Card className="bg-slate-900/50 border-slate-800 hover:border-emerald-600/50 transition-all">
-      <CardHeader>
+      <CardHeader className="pb-2 sm:pb-4">
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
-              <Badge variant="outline" className={statusBadge.color}>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3 flex-wrap">
+              <Badge variant="outline" className={`${statusBadge.color} text-[10px] sm:text-xs px-1 sm:px-2`}>
                 {statusBadge.text}
                 {statusBadge.time && ` • ${statusBadge.time}`}
               </Badge>
-              <Badge variant="outline" className="border-slate-700 text-slate-300">
-                <Calendar className="w-3 h-3 mr-1" />
+              <Badge variant="outline" className="border-slate-700 text-slate-300 text-[10px] sm:text-xs px-1 sm:px-2">
+                <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                 {matchDay}
               </Badge>
-              <Badge variant="outline" className="border-slate-700 text-slate-300">
-                <Clock className="w-3 h-3 mr-1" />
+              <Badge variant="outline" className="border-slate-700 text-slate-300 text-[10px] sm:text-xs px-1 sm:px-2">
+                <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                 {matchTime}
               </Badge>
             </div>
             
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center overflow-hidden">
+            <div className="space-y-2 sm:space-y-3">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-7 h-7 sm:w-10 sm:h-10 bg-slate-800 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                   {fixture.teams.home.logo ? (
-                    <img src={fixture.teams.home.logo} alt={fixture.teams.home.name} className="w-8 h-8 object-contain" />
+                    <img src={fixture.teams.home.logo} alt={fixture.teams.home.name} className="w-5 h-5 sm:w-8 sm:h-8 object-contain" />
                   ) : (
-                    <Trophy className="w-5 h-5 text-slate-400" />
+                    <Trophy className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-slate-400" />
                   )}
                 </div>
-                <div className="flex-1">
-                  <span className="text-white font-semibold text-lg">{fixture.teams.home.name}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="text-white font-semibold text-xs sm:text-lg truncate block">{fixture.teams.home.name}</span>
                 </div>
                 {fixture.goals.home !== null && (
-                  <span className="text-2xl font-bold text-emerald-400">{fixture.goals.home}</span>
+                  <span className="text-lg sm:text-2xl font-bold text-emerald-400">{fixture.goals.home}</span>
                 )}
               </div>
               
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center overflow-hidden">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-7 h-7 sm:w-10 sm:h-10 bg-slate-800 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                   {fixture.teams.away.logo ? (
-                    <img src={fixture.teams.away.logo} alt={fixture.teams.away.name} className="w-8 h-8 object-contain" />
+                    <img src={fixture.teams.away.logo} alt={fixture.teams.away.name} className="w-5 h-5 sm:w-8 sm:h-8 object-contain" />
                   ) : (
-                    <Trophy className="w-5 h-5 text-slate-400" />
+                    <Trophy className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-slate-400" />
                   )}
                 </div>
-                <div className="flex-1">
-                  <span className="text-white font-semibold text-lg">{fixture.teams.away.name}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="text-white font-semibold text-xs sm:text-lg truncate block">{fixture.teams.away.name}</span>
                 </div>
                 {fixture.goals.away !== null && (
-                  <span className="text-2xl font-bold text-blue-400">{fixture.goals.away}</span>
+                  <span className="text-lg sm:text-2xl font-bold text-blue-400">{fixture.goals.away}</span>
                 )}
               </div>
             </div>
@@ -749,26 +756,26 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
             onClick={() => setExpanded(!expanded)}
             variant="outline"
             size="sm"
-            className="border-slate-700 hover:bg-emerald-600 hover:border-emerald-600"
+            className="border-slate-700 hover:bg-emerald-600 hover:border-emerald-600 ml-2 text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
           >
-            {expanded ? 'Ocultar' : 'Ver Palpites'}
+            {expanded ? 'Ocultar' : 'Palpites'}
           </Button>
         </div>
       </CardHeader>
 
       {expanded && (
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2 sm:space-y-4 pt-0">
           <Separator className="bg-slate-800" />
           
           {loading ? (
-            <div className="py-8 text-center">
-              <Loader2 className="w-8 h-8 animate-spin text-emerald-500 mx-auto mb-3" />
-              <p className="text-slate-400">Analisando histórico completo dos times...</p>
+            <div className="py-6 sm:py-8 text-center">
+              <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-emerald-500 mx-auto mb-2 sm:mb-3" />
+              <p className="text-xs sm:text-base text-slate-400">Analisando...</p>
             </div>
           ) : analysis && suggestions.length > 0 ? (
             <>
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold text-white">Palpites Gerados por IA</h3>
+              <div className="space-y-2 sm:space-y-4">
+                <h3 className="text-sm sm:text-lg font-bold text-white">Palpites IA</h3>
                 <RiskLevelSection
                   level="conservative"
                   title="Conservador"
@@ -822,10 +829,10 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
               </div>
             </>
           ) : (
-            <div className="py-6 text-center">
-              <AlertTriangle className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-              <p className="text-slate-400">Nenhum palpite disponível para este jogo</p>
-              <p className="text-sm text-slate-500 mt-1">Dados insuficientes para análise</p>
+            <div className="py-4 sm:py-6 text-center">
+              <AlertTriangle className="w-8 h-8 sm:w-10 sm:h-10 text-slate-600 mx-auto mb-2 sm:mb-3" />
+              <p className="text-xs sm:text-base text-slate-400">Nenhum palpite disponível</p>
+              <p className="text-[10px] sm:text-sm text-slate-500 mt-1">Dados insuficientes</p>
             </div>
           )}
         </CardContent>
@@ -1233,13 +1240,13 @@ function RiskLevelSection({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <Icon className={`w-5 h-5 ${color === 'emerald' ? 'text-emerald-500' : color === 'yellow' ? 'text-yellow-500' : 'text-red-500'}`} />
-        <h4 className="font-semibold text-white">{title}</h4>
+    <div className="space-y-1.5 sm:space-y-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        <Icon className={`w-3.5 h-3.5 sm:w-5 sm:h-5 ${color === 'emerald' ? 'text-emerald-500' : color === 'yellow' ? 'text-yellow-500' : 'text-red-500'}`} />
+        <h4 className="font-semibold text-white text-xs sm:text-base">{title}</h4>
       </div>
       
-      <div className="space-y-2">
+      <div className="space-y-1.5 sm:space-y-2">
         {suggestions.map(suggestion => {
           const betResult = checkBetResult(suggestion);
           
@@ -1248,39 +1255,41 @@ function RiskLevelSection({
               key={suggestion.id} 
               className={`border ${colorClasses[color as keyof typeof colorClasses]}`}
             >
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <h5 className="font-semibold text-white">{suggestion.description}</h5>
-                    <p className="text-sm text-white mt-1">{suggestion.reasoning}</p>
+              <CardContent className="p-2.5 sm:p-4">
+                <div className="flex items-start justify-between mb-1.5 sm:mb-2">
+                  <div className="flex-1 min-w-0">
+                    <h5 className="font-semibold text-white text-xs sm:text-base">{suggestion.description}</h5>
+                    <p className="text-[10px] sm:text-sm text-white mt-0.5 sm:mt-1">{suggestion.reasoning}</p>
                   </div>
-                  <div className="flex items-center gap-2 ml-2">
-                    <Badge variant="outline" className="border-slate-700 text-white">
-                      <Target className="w-3 h-3 mr-1" />
+                  <div className="flex items-center gap-1 sm:gap-2 ml-1.5 sm:ml-2 flex-shrink-0">
+                    <Badge variant="outline" className="border-slate-700 text-white text-[10px] sm:text-xs px-1 sm:px-2">
+                      <Target className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                       {suggestion.confidence}%
                     </Badge>
                     {suggestion.odds && (
-                      <Badge variant="outline" className="border-slate-700 text-white bg-slate-800/50">
-                        ODD: {suggestion.odds.toFixed(2)}
+                      <Badge variant="outline" className="border-slate-700 text-white bg-slate-800/50 text-[10px] sm:text-xs px-1 sm:px-2">
+                        {suggestion.odds.toFixed(2)}
                       </Badge>
                     )}
                     {matchFinished && betResult !== null && (
                       <Badge 
                         variant="outline" 
-                        className={betResult 
+                        className={`text-[10px] sm:text-xs px-1 sm:px-2 ${betResult 
                           ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' 
                           : 'bg-red-500/20 border-red-500 text-red-400'
-                        }
+                        }`}
                       >
                         {betResult ? (
                           <>
-                            <CheckCircle2 className="w-3 h-3 mr-1" />
-                            Acertou
+                            <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                            <span className="hidden sm:inline">Acertou</span>
+                            <span className="sm:hidden">✓</span>
                           </>
                         ) : (
                           <>
-                            <XCircle className="w-3 h-3 mr-1" />
-                            Errou
+                            <XCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                            <span className="hidden sm:inline">Errou</span>
+                            <span className="sm:hidden">✗</span>
                           </>
                         )}
                       </Badge>
@@ -1288,8 +1297,8 @@ function RiskLevelSection({
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 mt-3">
-                  <div className="flex items-center gap-1 text-sm">
+                <div className="flex items-center gap-2 sm:gap-4 mt-2 sm:mt-3">
+                  <div className="flex items-center gap-1 text-xs sm:text-sm">
                     <span className="text-slate-400">Previsão:</span>
                     <span className="text-white font-semibold">{suggestion.prediction}</span>
                   </div>
@@ -1306,22 +1315,22 @@ function RiskLevelSection({
 function DashboardView({ stats, onClose }: { stats: any; onClose: () => void }) {
   if (!stats) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-3 sm:space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-emerald-500" />
-            Painel de Resultados (30 dias)
+          <h2 className="text-base sm:text-2xl font-bold text-white flex items-center gap-1.5 sm:gap-2">
+            <BarChart3 className="w-4 h-4 sm:w-6 sm:h-6 text-emerald-500" />
+            Resultados (30 dias)
           </h2>
-          <Button onClick={onClose} variant="outline" className="border-slate-700">
+          <Button onClick={onClose} variant="outline" className="border-slate-700 text-xs sm:text-sm h-7 sm:h-9">
             Voltar
           </Button>
         </div>
 
         <Card className="bg-slate-900/50 border-slate-800">
-          <CardContent className="py-12 text-center">
-            <BarChart3 className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400">Nenhum dado disponível ainda</p>
-            <p className="text-sm text-slate-500 mt-1">Comece a usar o sistema para ver estatísticas</p>
+          <CardContent className="py-8 sm:py-12 text-center">
+            <BarChart3 className="w-8 h-8 sm:w-12 sm:h-12 text-slate-600 mx-auto mb-3 sm:mb-4" />
+            <p className="text-xs sm:text-base text-slate-400">Nenhum dado disponível</p>
+            <p className="text-[10px] sm:text-sm text-slate-500 mt-1">Comece a usar para ver estatísticas</p>
           </CardContent>
         </Card>
       </div>
@@ -1329,66 +1338,66 @@ function DashboardView({ stats, onClose }: { stats: any; onClose: () => void }) 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-          <BarChart3 className="w-6 h-6 text-emerald-500" />
-          Painel de Resultados (30 dias)
+        <h2 className="text-base sm:text-2xl font-bold text-white flex items-center gap-1.5 sm:gap-2">
+          <BarChart3 className="w-4 h-4 sm:w-6 sm:h-6 text-emerald-500" />
+          Resultados (30 dias)
         </h2>
-        <Button onClick={onClose} variant="outline" className="border-slate-700">
+        <Button onClick={onClose} variant="outline" className="border-slate-700 text-xs sm:text-sm h-7 sm:h-9">
           Voltar
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
         <Card className="bg-slate-900/50 border-slate-800">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-slate-400">Total de Apostas</CardTitle>
+          <CardHeader className="pb-2 sm:pb-3">
+            <CardTitle className="text-xs sm:text-sm text-slate-400">Total</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-white">{stats.total}</p>
+            <p className="text-xl sm:text-3xl font-bold text-white">{stats.total}</p>
           </CardContent>
         </Card>
 
         <Card className="bg-emerald-500/10 border-emerald-500/30">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-emerald-400 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" />
+          <CardHeader className="pb-2 sm:pb-3">
+            <CardTitle className="text-xs sm:text-sm text-emerald-400 flex items-center gap-1 sm:gap-2">
+              <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
               Acertos
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-emerald-400">{stats.won}</p>
+            <p className="text-xl sm:text-3xl font-bold text-emerald-400">{stats.won}</p>
           </CardContent>
         </Card>
 
         <Card className="bg-red-500/10 border-red-500/30">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-red-400 flex items-center gap-2">
-              <XCircle className="w-4 h-4" />
+          <CardHeader className="pb-2 sm:pb-3">
+            <CardTitle className="text-xs sm:text-sm text-red-400 flex items-center gap-1 sm:gap-2">
+              <XCircle className="w-3 h-3 sm:w-4 sm:h-4" />
               Erros
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-red-400">{stats.lost}</p>
+            <p className="text-xl sm:text-3xl font-bold text-red-400">{stats.lost}</p>
           </CardContent>
         </Card>
 
         <Card className="bg-blue-500/10 border-blue-500/30">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-blue-400">Taxa de Acerto</CardTitle>
+          <CardHeader className="pb-2 sm:pb-3">
+            <CardTitle className="text-xs sm:text-sm text-blue-400">Taxa</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-blue-400">{stats.winRate}%</p>
+            <p className="text-xl sm:text-3xl font-bold text-blue-400">{stats.winRate}%</p>
           </CardContent>
         </Card>
       </div>
 
       <Card className="bg-slate-900/50 border-slate-800">
-        <CardHeader>
-          <CardTitle className="text-white">Desempenho por Nível de Risco</CardTitle>
+        <CardHeader className="pb-2 sm:pb-4">
+          <CardTitle className="text-white text-sm sm:text-base">Por Nível de Risco</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2 sm:space-y-4">
           <RiskStats
             title="Conservador"
             icon={Shield}
@@ -1421,21 +1430,21 @@ function RiskStats({ title, icon: Icon, color, stats }: any) {
   };
 
   return (
-    <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg">
-      <div className="flex items-center gap-3">
-        <Icon className={`w-5 h-5 ${colorClasses[color as keyof typeof colorClasses]}`} />
+    <div className="flex items-center justify-between p-2.5 sm:p-4 bg-slate-800/50 rounded-lg">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <Icon className={`w-3.5 h-3.5 sm:w-5 sm:h-5 ${colorClasses[color as keyof typeof colorClasses]}`} />
         <div>
-          <h4 className="font-semibold text-white">{title}</h4>
-          <p className="text-sm text-slate-400">
-            {stats.won} de {stats.total} apostas
+          <h4 className="font-semibold text-white text-xs sm:text-base">{title}</h4>
+          <p className="text-[10px] sm:text-sm text-slate-400">
+            {stats.won} de {stats.total}
           </p>
         </div>
       </div>
       <div className="text-right">
-        <p className={`text-2xl font-bold ${colorClasses[color as keyof typeof colorClasses]}`}>
+        <p className={`text-lg sm:text-2xl font-bold ${colorClasses[color as keyof typeof colorClasses]}`}>
           {stats.rate}%
         </p>
-        <p className="text-xs text-slate-400">Taxa de acerto</p>
+        <p className="text-[10px] sm:text-xs text-slate-400">Taxa</p>
       </div>
     </div>
   );

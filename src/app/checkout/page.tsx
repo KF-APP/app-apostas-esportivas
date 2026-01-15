@@ -13,30 +13,21 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Trophy, 
   CheckCircle2, 
-  CreditCard,
   Lock,
   ArrowLeft,
   Loader2,
   Star,
-  AlertCircle,
-  QrCode
+  AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { PLAN_PRICES } from '@/lib/payment';
 
 type PlanType = 'monthly' | 'yearly';
-type PaymentMethod = 'pix' | 'card';
 
-// Links de pagamento atualizados
-const PAYMENT_LINKS = {
-  monthly: {
-    pix: 'https://pag.ae/81oMp4aB9',
-    card: 'https://pag.ae/81oMoCS4p',
-  },
-  yearly: {
-    pix: 'https://pag.ae/81oky7p4o',
-    card: 'https://pag.ae/81okzzFnJ',
-  },
+// Links de teste grátis do Mercado Pago
+const FREE_TRIAL_LINKS = {
+  monthly: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=70081b96f45d4d23a339caa944dc6c26',
+  yearly: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=f02a5b40e82240d48e7b4dcc1dcb8ca1',
 };
 
 function CheckoutContent() {
@@ -44,7 +35,6 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('yearly');
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -84,7 +74,7 @@ function CheckoutContent() {
 
   const currentPlan = plans[selectedPlan];
 
-  const handleProceedToPayment = async (paymentMethod: PaymentMethod) => {
+  const handleStartFreeTrial = async () => {
     if (!formData.name || !formData.email || !formData.password) {
       alert('Por favor, preencha todos os campos');
       return;
@@ -96,7 +86,6 @@ function CheckoutContent() {
     }
 
     setLoading(true);
-    setSelectedPaymentMethod(paymentMethod);
 
     try {
       // Salvar dados do usuário no localStorage temporariamente
@@ -105,7 +94,6 @@ function CheckoutContent() {
         email: formData.email,
         password: formData.password,
         plan: selectedPlan,
-        paymentMethod,
         timestamp: new Date().toISOString(),
       }));
 
@@ -131,22 +119,21 @@ function CheckoutContent() {
       // Log de sucesso
       console.log('✅ Usuário criado/atualizado:', result);
 
-      // Obter link de pagamento correto
-      const paymentLink = PAYMENT_LINKS[selectedPlan][paymentMethod];
+      // Obter link de teste grátis correto
+      const freeTrialLink = FREE_TRIAL_LINKS[selectedPlan];
 
-      if (!paymentLink) {
-        console.error('❌ Link de pagamento não encontrado');
-        alert('Erro: Link de pagamento não configurado. Entre em contato com o suporte.');
+      if (!freeTrialLink) {
+        console.error('❌ Link de teste grátis não encontrado');
+        alert('Erro: Link de teste grátis não configurado. Entre em contato com o suporte.');
         setLoading(false);
-        setSelectedPaymentMethod(null);
         return;
       }
 
-      console.log('🔗 Redirecionando para pagamento:', paymentLink);
+      console.log('🔗 Redirecionando para teste grátis:', freeTrialLink);
 
       // SOLUÇÃO MOBILE: Criar elemento <a> temporário e simular clique
       const link = document.createElement('a');
-      link.href = paymentLink;
+      link.href = freeTrialLink;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
       document.body.appendChild(link);
@@ -162,7 +149,6 @@ function CheckoutContent() {
       console.error('❌ Erro no checkout:', error);
       alert('Erro ao processar checkout. Tente novamente.');
       setLoading(false);
-      setSelectedPaymentMethod(null);
     }
   };
 
@@ -267,7 +253,7 @@ function CheckoutContent() {
               <Card className="bg-slate-900/50 border-slate-800">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-emerald-500" />
+                    <Lock className="w-5 h-5 text-emerald-500" />
                     Criar Sua Conta
                   </CardTitle>
                   <CardDescription className="text-slate-400">
@@ -334,52 +320,30 @@ function CheckoutContent() {
                     </Alert>
 
                     <div className="space-y-3">
-                      <p className="text-sm font-medium text-slate-300 text-center">
-                        Escolha a forma de pagamento:
-                      </p>
-                      
-                      <div className="grid grid-cols-2 gap-3">
-                        <Button 
-                          onClick={() => handleProceedToPayment('pix')}
-                          size="lg" 
-                          className="bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700"
-                          disabled={loading || !isFormValid}
-                        >
-                          {loading && selectedPaymentMethod === 'pix' ? (
-                            <>
-                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                              Processando...
-                            </>
-                          ) : (
-                            <>
-                              <QrCode className="w-5 h-5 mr-2" />
-                              PIX
-                            </>
-                          )}
-                        </Button>
-
-                        <Button 
-                          onClick={() => handleProceedToPayment('card')}
-                          size="lg" 
-                          className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
-                          disabled={loading || !isFormValid}
-                        >
-                          {loading && selectedPaymentMethod === 'card' ? (
-                            <>
-                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                              Processando...
-                            </>
-                          ) : (
-                            <>
-                              <CreditCard className="w-5 h-5 mr-2" />
-                              Cartão
-                            </>
-                          )}
-                        </Button>
-                      </div>
+                      <Button 
+                        onClick={handleStartFreeTrial}
+                        size="lg" 
+                        className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-lg font-semibold"
+                        disabled={loading || !isFormValid}
+                      >
+                        {loading ? (
+                          <>
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                            Processando...
+                          </>
+                        ) : (
+                          <>
+                            Teste por 7 dias
+                          </>
+                        )}
+                      </Button>
 
                       <p className="text-xs text-center text-slate-400">
-                        {currentPlan.priceFormatted} {currentPlan.period}
+                        {currentPlan.priceFormatted} {currentPlan.period} após o período de teste
+                      </p>
+                      
+                      <p className="text-xs text-center text-slate-500">
+                        Você pode cancelar quando quiser. Sem fidelidade. Sem promessa de lucro.
                       </p>
                     </div>
 

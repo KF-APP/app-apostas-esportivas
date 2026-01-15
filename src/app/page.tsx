@@ -11,7 +11,8 @@ import {
   BarChart3,
   Shield,
   Smartphone,
-  CreditCard
+  CreditCard,
+  Clock
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -19,8 +20,6 @@ import { useRouter } from 'next/navigation';
 
 export default function LandingPage() {
   const router = useRouter();
-  const [monthlyPaymentMethod, setMonthlyPaymentMethod] = useState<'pix' | 'card'>('card');
-  const [yearlyPaymentMethod, setYearlyPaymentMethod] = useState<'pix' | 'card'>('card');
 
   const handleSelectPlan = (plan: 'monthly' | 'yearly') => {
     router.push(`/checkout?plan=${plan}`);
@@ -30,21 +29,21 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Header */}
       <header className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-sm sticky top-0 z-50 shadow-lg">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 py-2 sm:px-4 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-7 h-7 text-emerald-400" />
-              <h1 className="text-2xl font-bold text-white">PalpitePro</h1>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <BarChart3 className="w-5 h-5 sm:w-7 sm:h-7 text-emerald-400" />
+              <h1 className="text-base sm:text-2xl font-bold text-white">PalpitePro</h1>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <a href="#planos">
-                <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                  Analisar jogos com dados
+                <Button className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs sm:text-sm px-2 py-1 sm:px-4 sm:py-2 h-7 sm:h-10">
+                  Teste por 7 dias
                 </Button>
               </a>
               <Link href="/login">
-                <Button variant="outline" className="border-emerald-400/30 hover:bg-emerald-400/10 text-emerald-400">
+                <Button variant="outline" className="border-emerald-400/30 hover:bg-emerald-400/10 text-emerald-400 text-xs sm:text-sm px-2 py-1 sm:px-4 sm:py-2 h-7 sm:h-10">
                   Entrar
                 </Button>
               </Link>
@@ -54,138 +53,79 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
+      <section className="container mx-auto px-3 py-6 sm:px-4 sm:py-16 md:py-24">
+        <div className="max-w-3xl mx-auto text-center space-y-3 sm:space-y-6">
+          <h2 className="text-xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
             Se você não olha estatística, erra antes do jogo começar.
           </h2>
           
-          <p className="text-xl text-slate-300">
-            O PalpitePro mostra estatísticas e análises com IA pra você parar de apostar no impulso
+          <p className="text-sm sm:text-xl text-slate-300">
+            Teste o PalpitePro por 7 dias e pare de apostar no achismo.
           </p>
           
-          <div className="pt-4">
+          <div className="pt-2 sm:pt-4">
             <a href="#planos">
-              <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white text-lg px-8 py-6">
-                Analisar jogos com dados
-                <ArrowRight className="w-5 h-5 ml-2" />
+              <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white text-sm sm:text-lg px-4 py-3 sm:px-8 sm:py-6">
+                Usar antes do próximo jogo
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
               </Button>
             </a>
           </div>
-
-          <p className="text-lg text-slate-300 pt-2">
-            Use antes do próximo jogo e decida com dados.
-          </p>
         </div>
       </section>
 
-      {/* Pain Points */}
-      <section className="bg-slate-900/50 py-16">
-        <div className="container mx-auto px-4">
+      {/* Pain Points - Bloco de Dor */}
+      <section className="bg-slate-900/50 py-6 sm:py-16">
+        <div className="container mx-auto px-3 sm:px-4">
           <div className="max-w-4xl mx-auto">
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-8 text-center">
-              Você está perdendo dinheiro por:
+            <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-white mb-4 sm:mb-8 text-center">
+              Você perde dinheiro quando:
             </h3>
             
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card className="border-red-500/30 bg-slate-800/50 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <AlertTriangle className="w-6 h-6 text-red-400 flex-shrink-0 mt-1" />
-                    <div>
-                      <h4 className="font-bold text-white mb-2">Apostar sem estatística</h4>
-                      <p className="text-slate-300">Jogar no escuro</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-red-500/30 bg-slate-800/50 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <TrendingDown className="w-6 h-6 text-red-400 flex-shrink-0 mt-1" />
-                    <div>
-                      <h4 className="font-bold text-white mb-2">Decidir no feeling</h4>
-                      <p className="text-slate-300">Achismo não paga conta</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-red-500/30 bg-slate-800/50 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <AlertTriangle className="w-6 h-6 text-red-400 flex-shrink-0 mt-1" />
-                    <div>
-                      <h4 className="font-bold text-white mb-2">Errar por detalhe simples</h4>
-                      <p className="text-slate-300">Um dado muda tudo</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-red-500/30 bg-slate-800/50 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <TrendingDown className="w-6 h-6 text-red-400 flex-shrink-0 mt-1" />
-                    <div>
-                      <h4 className="font-bold text-white mb-2">Perder dinheiro por besteira</h4>
-                      <p className="text-slate-300">A informação estava lá</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="space-y-2 sm:space-y-4 max-w-2xl mx-auto">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <span className="text-red-400 text-base sm:text-xl">•</span>
+                <p className="text-sm sm:text-lg text-slate-200">aposta sem estatística</p>
+              </div>
+              <div className="flex items-start gap-2 sm:gap-3">
+                <span className="text-red-400 text-base sm:text-xl">•</span>
+                <p className="text-sm sm:text-lg text-slate-200">decide no feeling</p>
+              </div>
+              <div className="flex items-start gap-2 sm:gap-3">
+                <span className="text-red-400 text-base sm:text-xl">•</span>
+                <p className="text-sm sm:text-lg text-slate-200">ignora dados simples que mudam o jogo</p>
+              </div>
+              <p className="text-sm sm:text-lg text-slate-300 italic pt-2 sm:pt-4 text-center">
+                A informação estava lá. Você só não olhou.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Solution */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">
-              Com um app de estatística e dicas, você bate o olho e já tem as informações na mão
-            </h3>
-            
-            <div className="space-y-6 mt-12">
-              <div className="flex items-start gap-4">
-                <CheckCircle2 className="w-6 h-6 text-emerald-400 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-bold text-white mb-1">Organiza dados</h4>
-                  <p className="text-slate-300">Histórico, estatísticas e confrontos diretos em um lugar só</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <CheckCircle2 className="w-6 h-6 text-emerald-400 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-bold text-white mb-1">Ajuda na leitura do jogo</h4>
-                  <p className="text-slate-300">IA analisa padrões que você não veria sozinho</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <CheckCircle2 className="w-6 h-6 text-emerald-400 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-bold text-white mb-1">Evita erro por impulso</h4>
-                  <p className="text-slate-300">Você decide com base em fatos, não em achismo</p>
-                </div>
-              </div>
-            </div>
+      {/* Solution - Bloco de Solução */}
+      <section className="py-6 sm:py-16">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <p className="text-sm sm:text-xl md:text-2xl text-slate-200 leading-relaxed">
+              O PalpitePro reúne estatísticas, histórico e confrontos em um só lugar.
+            </p>
+            <p className="text-sm sm:text-xl md:text-2xl text-slate-200 leading-relaxed mt-2 sm:mt-4">
+              Você analisa o jogo com dados e evita decisões por impulso.
+            </p>
           </div>
         </div>
       </section>
 
       {/* Credibility */}
-      <section className="bg-slate-900/50 py-16">
-        <div className="container mx-auto px-4">
+      <section className="bg-slate-900/50 py-6 sm:py-16">
+        <div className="container mx-auto px-3 sm:px-4">
           <div className="max-w-3xl mx-auto">
             <Card className="border-emerald-500/30 bg-slate-800/50 backdrop-blur-sm">
-              <CardContent className="p-8 md:p-12 text-center">
-                <Shield className="w-12 h-12 text-emerald-400 mx-auto mb-6" />
-                <p className="text-xl text-slate-200 leading-relaxed">
-                  O PalpitePro não promete lucro. Ele ajuda você a analisar melhor antes de decidir.
+              <CardContent className="p-4 sm:p-8 md:p-12 text-center">
+                <Shield className="w-8 h-8 sm:w-12 sm:h-12 text-emerald-400 mx-auto mb-3 sm:mb-6" />
+                <p className="text-sm sm:text-xl text-slate-200 leading-relaxed">
+                  O PalpitePro não garante ganhos. Ele ajuda você a analisar melhor antes de decidir.
                 </p>
               </CardContent>
             </Card>
@@ -193,182 +133,153 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Teste 7 Dias - Antes do Checkout */}
+      <section className="py-6 sm:py-16">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="max-w-3xl mx-auto">
+            <Card className="border-emerald-500/50 bg-gradient-to-br from-emerald-900/20 to-slate-800/50 backdrop-blur-sm">
+              <CardContent className="p-4 sm:p-8 md:p-12">
+                <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-6">
+                  <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-400" />
+                  <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-white text-center">
+                    Teste por 7 dias. Decida depois.
+                  </h3>
+                </div>
+                
+                <div className="space-y-2 sm:space-y-4 text-sm sm:text-lg text-slate-200">
+                  <p>Você testa o app por 7 dias.</p>
+                  <p>Se não fizer sentido, cancele.</p>
+                  <p>Se fizer, a cobrança continua automaticamente.</p>
+                  <p className="font-medium text-emerald-400">Sem fidelidade.</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing */}
-      <section id="planos" className="py-16">
-        <div className="container mx-auto px-4">
+      <section id="planos" className="py-6 sm:py-16 bg-slate-900/30">
+        <div className="container mx-auto px-3 sm:px-4">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-8">
-              <p className="text-lg text-slate-300 mb-6">
-                Se você já errou uma aposta por falta de estatística, esse app já teria se pago.
-              </p>
-              <h3 className="text-3xl md:text-4xl font-bold text-white">
+            <div className="text-center mb-6 sm:mb-12">
+              <h3 className="text-xl sm:text-3xl md:text-4xl font-bold text-white mb-2 sm:mb-4">
                 Escolha seu plano
               </h3>
+              <p className="text-sm sm:text-lg text-emerald-400 font-medium">
+                Teste por 7 dias e decida depois
+              </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-2 gap-4 sm:gap-8">
               {/* Plano Mensal */}
               <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-                <CardHeader className="text-center pb-6">
-                  <CardTitle className="text-2xl text-white mb-4">Plano Mensal</CardTitle>
-                  <div className="space-y-2">
-                    <p className="text-sm text-slate-400 line-through">De R$ 79,90/mês</p>
-                    <div className="flex items-baseline justify-center gap-2">
-                      <span className="text-4xl font-bold text-emerald-400">R$ 39,90</span>
-                      <span className="text-slate-300">/mês</span>
+                <CardHeader className="text-center pb-3 sm:pb-6">
+                  <CardTitle className="text-lg sm:text-2xl text-white mb-2 sm:mb-4">Plano Mensal</CardTitle>
+                  <div className="space-y-1 sm:space-y-2">
+                    <div className="flex items-baseline justify-center gap-1 sm:gap-2">
+                      <span className="text-2xl sm:text-4xl font-bold text-emerald-400">R$ 39,90</span>
+                      <span className="text-xs sm:text-base text-slate-300">/mês</span>
                     </div>
                   </div>
-                  <p className="text-sm text-slate-300 mt-3">
-                    Menos do que errar uma aposta por falta de estatística
+                  <p className="text-xs sm:text-sm text-emerald-400 font-medium mt-2 sm:mt-3">
+                    7 dias de teste • Cancele quando quiser
                   </p>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      <span className="text-slate-200">Análises com IA</span>
+                <CardContent className="space-y-3 sm:space-y-6">
+                  <div className="space-y-2 sm:space-y-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-xs sm:text-base text-slate-200">Análises com IA</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      <span className="text-slate-200">Estatísticas completas</span>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-xs sm:text-base text-slate-200">Estatísticas completas</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      <span className="text-slate-200">Cancela quando quiser</span>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-xs sm:text-base text-slate-200">Cancela quando quiser</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      <span className="text-slate-200">Sem fidelidade</span>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-xs sm:text-base text-slate-200">Sem fidelidade</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      <span className="text-slate-200">Acesso imediato</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 pt-4">
-                    <p className="text-sm text-slate-300 text-center font-medium">Escolha a forma de pagamento:</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button
-                        variant="outline"
-                        className={`${
-                          monthlyPaymentMethod === 'pix'
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
-                            : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
-                        }`}
-                        onClick={() => setMonthlyPaymentMethod('pix')}
-                      >
-                        <Smartphone className="w-4 h-4 mr-2" />
-                        PIX
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className={`${
-                          monthlyPaymentMethod === 'card'
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
-                            : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
-                        }`}
-                        onClick={() => setMonthlyPaymentMethod('card')}
-                      >
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        Cartão
-                      </Button>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-xs sm:text-base text-slate-200">Acesso imediato</span>
                     </div>
                   </div>
 
                   <Button 
                     size="lg" 
-                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg py-6"
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm sm:text-lg py-4 sm:py-6"
                     onClick={() => handleSelectPlan('monthly')}
                   >
-                    Analisar jogos com dados
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    Teste por 7 dias
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                   </Button>
+
+                  <p className="text-[10px] sm:text-xs text-slate-400 text-center pt-1 sm:pt-2">
+                    Você pode cancelar quando quiser. Sem fidelidade. Sem promessa de lucro.
+                  </p>
                 </CardContent>
               </Card>
 
               {/* Plano Anual */}
               <Card className="border-emerald-500/50 bg-slate-800/50 backdrop-blur-sm relative">
-                <div className="absolute top-4 right-4">
-                  <Badge className="bg-emerald-500 text-white">
+                <div className="absolute top-2 right-2 sm:top-4 sm:right-4">
+                  <Badge className="bg-emerald-500 text-white text-[10px] sm:text-xs px-1.5 py-0.5 sm:px-2 sm:py-1">
                     Melhor escolha
                   </Badge>
                 </div>
-                <CardHeader className="text-center pb-6">
-                  <CardTitle className="text-2xl text-white mb-4">Plano Anual</CardTitle>
-                  <div className="space-y-2">
-                    <p className="text-sm text-slate-400 line-through">De R$ 958,80/ano</p>
-                    <div className="flex items-baseline justify-center gap-2">
-                      <span className="text-4xl font-bold text-emerald-400">R$ 297</span>
-                      <span className="text-slate-300">/ano</span>
+                <CardHeader className="text-center pb-3 sm:pb-6">
+                  <CardTitle className="text-lg sm:text-2xl text-white mb-2 sm:mb-4">Plano Anual</CardTitle>
+                  <div className="space-y-1 sm:space-y-2">
+                    <div className="flex items-baseline justify-center gap-1 sm:gap-2">
+                      <span className="text-2xl sm:text-4xl font-bold text-emerald-400">R$ 297</span>
+                      <span className="text-xs sm:text-base text-slate-300">/ano</span>
                     </div>
                   </div>
-                  <p className="text-sm text-emerald-400 font-medium mt-3">
-                    R$ 24,75/mês • Economize R$ 181,80
+                  <p className="text-xs sm:text-sm text-emerald-400 font-medium mt-2 sm:mt-3">
+                    R$ 24,75/mês • 7 dias de teste • Economize R$ 181,80
                   </p>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      <span className="text-slate-200">Análises com IA</span>
+                <CardContent className="space-y-3 sm:space-y-6">
+                  <div className="space-y-2 sm:space-y-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-xs sm:text-base text-slate-200">Análises com IA</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      <span className="text-slate-200">Estatísticas completas</span>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-xs sm:text-base text-slate-200">Estatísticas completas</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      <span className="text-slate-200">Cancela quando quiser</span>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-xs sm:text-base text-slate-200">Cancela quando quiser</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      <span className="text-slate-200">Sem fidelidade</span>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-xs sm:text-base text-slate-200">Sem fidelidade</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      <span className="text-slate-200">Acesso imediato</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 pt-4">
-                    <p className="text-sm text-slate-300 text-center font-medium">Escolha a forma de pagamento:</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button
-                        variant="outline"
-                        className={`${
-                          yearlyPaymentMethod === 'pix'
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
-                            : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
-                        }`}
-                        onClick={() => setYearlyPaymentMethod('pix')}
-                      >
-                        <Smartphone className="w-4 h-4 mr-2" />
-                        PIX
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className={`${
-                          yearlyPaymentMethod === 'card'
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
-                            : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
-                        }`}
-                        onClick={() => setYearlyPaymentMethod('card')}
-                      >
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        Cartão
-                      </Button>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-xs sm:text-base text-slate-200">Acesso imediato</span>
                     </div>
                   </div>
 
                   <Button 
                     size="lg" 
-                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg py-6"
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm sm:text-lg py-4 sm:py-6"
                     onClick={() => handleSelectPlan('yearly')}
                   >
-                    Analisar jogos com dados
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    Teste por 7 dias
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                   </Button>
+
+                  <p className="text-[10px] sm:text-xs text-slate-400 text-center pt-1 sm:pt-2">
+                    Você pode cancelar quando quiser. Sem fidelidade. Sem promessa de lucro.
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -376,35 +287,18 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Urgency */}
-      <section className="bg-slate-900/50 py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <h3 className="text-2xl md:text-3xl font-bold text-white">
-              As análises são atualizadas diariamente
-            </h3>
-            <p className="text-lg text-slate-300">
-              Cada jogo sem estatística é uma oportunidade perdida
-            </p>
-            <p className="text-lg text-slate-300 font-medium">
-              Quem analisa antes, erra menos
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* Final CTA */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="py-6 sm:py-16">
+        <div className="container mx-auto px-3 sm:px-4">
           <Card className="bg-gradient-to-br from-emerald-600 to-emerald-500 border-0 max-w-3xl mx-auto">
-            <CardContent className="p-12 text-center">
-              <h3 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            <CardContent className="p-6 sm:p-12 text-center">
+              <h3 className="text-lg sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-6">
                 Pare de perder dinheiro por falta de análise
               </h3>
               <a href="#planos">
-                <Button size="lg" className="bg-white text-emerald-600 hover:bg-slate-100 text-lg px-8 py-6">
-                  Analisar jogos com dados
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                <Button size="lg" className="bg-white text-emerald-600 hover:bg-slate-100 text-sm sm:text-lg px-4 py-3 sm:px-8 sm:py-6">
+                  Usar antes do próximo jogo
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                 </Button>
               </a>
             </CardContent>
@@ -413,14 +307,14 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-950/50 backdrop-blur-sm py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-emerald-400" />
-              <span className="text-slate-400">© 2024 PalpitePro. Todos os direitos reservados.</span>
+      <footer className="border-t border-slate-800 bg-slate-950/50 backdrop-blur-sm py-4 sm:py-8">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
+              <span className="text-xs sm:text-sm text-slate-400">© 2024 PalpitePro. Todos os direitos reservados.</span>
             </div>
-            <div className="flex gap-6 text-slate-400">
+            <div className="flex gap-3 sm:gap-6 text-xs sm:text-sm text-slate-400">
               <a href="#" className="hover:text-emerald-400 transition-colors">Termos de Uso</a>
               <a href="#" className="hover:text-emerald-400 transition-colors">Privacidade</a>
               <a href="#" className="hover:text-emerald-400 transition-colors">Suporte</a>
