@@ -18,10 +18,10 @@ import {
   ExternalLink
 } from 'lucide-react';
 
-// Links de teste por 7 dias
+// Links de teste por 7 dias - Mercado Pago
 const TRIAL_LINKS = {
-  monthly: 'https://pag.ae/81oMp4aB9',
-  yearly: 'https://pag.ae/81oky7p4o',
+  monthly: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=70081b96f45d4d23a339caa944dc6c26',
+  yearly: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=f02a5b40e82240d48e7b4dcc1dcb8ca1',
 };
 
 function AguardandoPagamentoContent() {
