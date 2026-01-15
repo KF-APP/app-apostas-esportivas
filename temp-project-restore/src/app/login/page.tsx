@@ -136,15 +136,10 @@ export default function LoginPage() {
               )}
             </Button>
 
-            <div className="text-center space-y-2">
+            <div className="text-center">
               <a href="/" className="text-sm text-emerald-400 hover:text-emerald-300 block">
                 Voltar para página inicial
               </a>
-              <div className="text-xs text-slate-500 pt-2 border-t border-slate-800">
-                <p className="font-semibold mb-1">Usuário de teste:</p>
-                <p>Email: fusquinekaique@hotmail.com</p>
-                <p>Senha: Kaique24891510*</p>
-              </div>
             </div>
           </form>
         </CardContent>

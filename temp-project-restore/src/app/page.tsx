@@ -4,47 +4,48 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Trophy, 
-  TrendingUp, 
-  Shield, 
-  Zap, 
-  CheckCircle2, 
-  Star,
-  BarChart3,
-  Target,
-  Sparkles,
+  CheckCircle2,
   ArrowRight,
-  Brain,
-  Cpu
+  AlertTriangle,
+  TrendingDown,
+  BarChart3,
+  Shield,
+  Smartphone,
+  CreditCard
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LandingPage() {
+  const router = useRouter();
+  const [monthlyPaymentMethod, setMonthlyPaymentMethod] = useState<'pix' | 'card'>('card');
+  const [yearlyPaymentMethod, setYearlyPaymentMethod] = useState<'pix' | 'card'>('card');
+
+  const handleSelectPlan = (plan: 'monthly' | 'yearly') => {
+    router.push(`/checkout?plan=${plan}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-sm sticky top-0 z-50 shadow-lg">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-2 rounded-xl">
-                <Trophy className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">PalpitePro</h1>
-                <p className="text-sm text-slate-400">Análises com Inteligência Artificial</p>
-              </div>
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-7 h-7 text-emerald-400" />
+              <h1 className="text-2xl font-bold text-white">PalpitePro</h1>
             </div>
             
             <div className="flex items-center gap-3">
-              <Link href="/login">
-                <Button variant="outline" className="border-slate-700 hover:bg-slate-800">
-                  Entrar
+              <a href="#planos">
+                <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                  Analisar jogos com dados
                 </Button>
-              </Link>
-              <Link href="/checkout">
-                <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700">
-                  Começar Agora
+              </a>
+              <Link href="/login">
+                <Button variant="outline" className="border-emerald-400/30 hover:bg-emerald-400/10 text-emerald-400">
+                  Entrar
                 </Button>
               </Link>
             </div>
@@ -53,377 +54,370 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 px-4 py-1">
-            <Brain className="w-4 h-4 mr-2" />
-            Inteligência Artificial Analisando Suas Apostas
-          </Badge>
-          
-          <h2 className="text-5xl md:text-6xl font-bold text-white leading-tight">
-            Palpites Analisados por
-            <span className="bg-gradient-to-r from-purple-400 to-emerald-400 bg-clip-text text-transparent"> Inteligência Artificial</span>
+      <section className="container mx-auto px-4 py-16 md:py-24">
+        <div className="max-w-3xl mx-auto text-center space-y-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
+            Se você não olha estatística, erra antes do jogo começar.
           </h2>
           
-          <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-            Nossa IA analisa milhares de dados em segundos: histórico de confrontos, estatísticas dos times, desempenho recente e muito mais para gerar os melhores palpites.
+          <p className="text-xl text-slate-300">
+            O PalpitePro mostra estatísticas e análises com IA pra você parar de apostar no impulso
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/checkout">
-              <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-lg px-8 py-6">
-                Começar Agora
+          <div className="pt-4">
+            <a href="#planos">
+              <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white text-lg px-8 py-6">
+                Analisar jogos com dados
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-            </Link>
-            <Button size="lg" variant="outline" className="border-slate-700 hover:bg-slate-800 text-lg px-8 py-6">
-              Ver Demonstração
-            </Button>
+            </a>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-8 pt-12 max-w-2xl mx-auto">
-            <div>
-              <p className="text-3xl font-bold text-emerald-400">85%</p>
-              <p className="text-sm text-slate-400 mt-1">Taxa de Acerto</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-emerald-400">10k+</p>
-              <p className="text-sm text-slate-400 mt-1">Análises Realizadas</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-emerald-400">500+</p>
-              <p className="text-sm text-slate-400 mt-1">Usuários Ativos</p>
-            </div>
-          </div>
+          <p className="text-lg text-slate-300 pt-2">
+            Use antes do próximo jogo e decida com dados.
+          </p>
         </div>
       </section>
 
-      {/* AI Feature Highlight */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="max-w-5xl mx-auto">
-          <Card className="bg-gradient-to-br from-purple-500/10 to-emerald-500/10 border-purple-500/30 overflow-hidden">
-            <CardContent className="p-12">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div className="space-y-6">
-                  <div className="w-16 h-16 bg-purple-500/20 rounded-2xl flex items-center justify-center">
-                    <Cpu className="w-8 h-8 text-purple-400" />
-                  </div>
-                  <h3 className="text-3xl font-bold text-white">
-                    Inteligência Artificial Trabalhando Para Você
-                  </h3>
-                  <p className="text-lg text-slate-300">
-                    Nossa IA processa milhares de dados em tempo real para identificar os melhores palpites. Ela analisa:
-                  </p>
-                  <ul className="space-y-3">
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-1 flex-shrink-0" />
-                      <span className="text-slate-300">Histórico completo de confrontos diretos</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-1 flex-shrink-0" />
-                      <span className="text-slate-300">Desempenho recente dos times (últimos 10 jogos)</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-1 flex-shrink-0" />
-                      <span className="text-slate-300">Estatísticas de gols marcados e sofridos</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-1 flex-shrink-0" />
-                      <span className="text-slate-300">Padrões e tendências identificados automaticamente</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-emerald-500 blur-3xl opacity-20"></div>
-                  <div className="relative bg-slate-900/80 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
-                      <span className="text-slate-300 text-sm">IA Analisando...</span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-purple-500 to-emerald-500 w-4/5 animate-pulse"></div>
-                      </div>
-                      <p className="text-xs text-slate-400">Processando 10.000+ pontos de dados</p>
-                    </div>
-                    <div className="pt-4 space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-slate-400">Confiança do palpite:</span>
-                        <span className="text-emerald-400 font-bold">87%</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-slate-400">Nível de risco:</span>
-                        <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
-                          Conservador
-                        </Badge>
-                      </div>
+      {/* Pain Points */}
+      <section className="bg-slate-900/50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-8 text-center">
+              Você está perdendo dinheiro por:
+            </h3>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="border-red-500/30 bg-slate-800/50 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <AlertTriangle className="w-6 h-6 text-red-400 flex-shrink-0 mt-1" />
+                    <div>
+                      <h4 className="font-bold text-white mb-2">Apostar sem estatística</h4>
+                      <p className="text-slate-300">Jogar no escuro</p>
                     </div>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+                </CardContent>
+              </Card>
 
-      {/* Features */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Por Que Escolher PalpitePro?
-            </h3>
-            <p className="text-lg text-slate-400">
-              Ferramentas profissionais para apostadores inteligentes
-            </p>
-          </div>
+              <Card className="border-red-500/30 bg-slate-800/50 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <TrendingDown className="w-6 h-6 text-red-400 flex-shrink-0 mt-1" />
+                    <div>
+                      <h4 className="font-bold text-white mb-2">Decidir no feeling</h4>
+                      <p className="text-slate-300">Achismo não paga conta</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="bg-slate-900/50 border-slate-800 hover:border-emerald-600/50 transition-all">
-              <CardHeader>
-                <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4">
-                  <BarChart3 className="w-6 h-6 text-emerald-400" />
-                </div>
-                <CardTitle className="text-white">Análise de Dados Reais</CardTitle>
-                <CardDescription className="text-slate-400">
-                  Palpites baseados em estatísticas reais, histórico de confrontos e desempenho dos times
-                </CardDescription>
-              </CardHeader>
-            </Card>
+              <Card className="border-red-500/30 bg-slate-800/50 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <AlertTriangle className="w-6 h-6 text-red-400 flex-shrink-0 mt-1" />
+                    <div>
+                      <h4 className="font-bold text-white mb-2">Errar por detalhe simples</h4>
+                      <p className="text-slate-300">Um dado muda tudo</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <Card className="bg-slate-900/50 border-slate-800 hover:border-emerald-600/50 transition-all">
-              <CardHeader>
-                <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4">
-                  <Target className="w-6 h-6 text-blue-400" />
-                </div>
-                <CardTitle className="text-white">Níveis de Risco</CardTitle>
-                <CardDescription className="text-slate-400">
-                  Escolha entre palpites conservadores, médios ou de alto risco de acordo com seu perfil
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="bg-slate-900/50 border-slate-800 hover:border-emerald-600/50 transition-all">
-              <CardHeader>
-                <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4">
-                  <Zap className="w-6 h-6 text-purple-400" />
-                </div>
-                <CardTitle className="text-white">Atualizações em Tempo Real</CardTitle>
-                <CardDescription className="text-slate-400">
-                  Acompanhe jogos ao vivo e receba palpites atualizados constantemente
-                </CardDescription>
-              </CardHeader>
-            </Card>
+              <Card className="border-red-500/30 bg-slate-800/50 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <TrendingDown className="w-6 h-6 text-red-400 flex-shrink-0 mt-1" />
+                    <div>
+                      <h4 className="font-bold text-white mb-2">Perder dinheiro por besteira</h4>
+                      <p className="text-slate-300">A informação estava lá</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Como Funciona
+      {/* Solution */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">
+              Com um app de estatística e dicas, você bate o olho e já tem as informações na mão
             </h3>
-            <p className="text-lg text-slate-400">
-              Simples, rápido e eficiente
-            </p>
+            
+            <div className="space-y-6 mt-12">
+              <div className="flex items-start gap-4">
+                <CheckCircle2 className="w-6 h-6 text-emerald-400 flex-shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-bold text-white mb-1">Organiza dados</h4>
+                  <p className="text-slate-300">Histórico, estatísticas e confrontos diretos em um lugar só</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <CheckCircle2 className="w-6 h-6 text-emerald-400 flex-shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-bold text-white mb-1">Ajuda na leitura do jogo</h4>
+                  <p className="text-slate-300">IA analisa padrões que você não veria sozinho</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <CheckCircle2 className="w-6 h-6 text-emerald-400 flex-shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-bold text-white mb-1">Evita erro por impulso</h4>
+                  <p className="text-slate-300">Você decide com base em fatos, não em achismo</p>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <div className="space-y-8">
-            <div className="flex gap-6 items-start">
-              <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold text-xl">1</span>
-              </div>
-              <div>
-                <h4 className="text-xl font-bold text-white mb-2">Crie Sua Conta</h4>
-                <p className="text-slate-400">
-                  Cadastre-se em menos de 1 minuto e tenha acesso imediato à plataforma
+      {/* Credibility */}
+      <section className="bg-slate-900/50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <Card className="border-emerald-500/30 bg-slate-800/50 backdrop-blur-sm">
+              <CardContent className="p-8 md:p-12 text-center">
+                <Shield className="w-12 h-12 text-emerald-400 mx-auto mb-6" />
+                <p className="text-xl text-slate-200 leading-relaxed">
+                  O PalpitePro não promete lucro. Ele ajuda você a analisar melhor antes de decidir.
                 </p>
-              </div>
-            </div>
-
-            <div className="flex gap-6 items-start">
-              <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold text-xl">2</span>
-              </div>
-              <div>
-                <h4 className="text-xl font-bold text-white mb-2">Escolha os Jogos</h4>
-                <p className="text-slate-400">
-                  Navegue pelos jogos do dia e selecione aqueles que deseja analisar
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-6 items-start">
-              <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold text-xl">3</span>
-              </div>
-              <div>
-                <h4 className="text-xl font-bold text-white mb-2">Receba Palpites da IA</h4>
-                <p className="text-slate-400">
-                  Veja análises detalhadas e palpites gerados por inteligência artificial com diferentes níveis de risco
-                </p>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Pricing */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Escolha Seu Plano
-            </h3>
-            <p className="text-lg text-slate-400">
-              Planos flexíveis para todos os perfis
-            </p>
-          </div>
+      <section id="planos" className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-8">
+              <p className="text-lg text-slate-300 mb-6">
+                Se você já errou uma aposta por falta de estatística, esse app já teria se pago.
+              </p>
+              <h3 className="text-3xl md:text-4xl font-bold text-white">
+                Escolha seu plano
+              </h3>
+            </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Plano Mensal */}
-            <Card className="bg-slate-900/50 border-slate-800 hover:border-emerald-600/50 transition-all">
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl text-white mb-2">Plano Mensal</CardTitle>
-                <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-4xl font-bold text-white">R$ 29,90</span>
-                  <span className="text-slate-400">/mês</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-300">Análise de dados em tempo real</span>
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Plano Mensal */}
+              <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
+                <CardHeader className="text-center pb-6">
+                  <CardTitle className="text-2xl text-white mb-4">Plano Mensal</CardTitle>
+                  <div className="space-y-2">
+                    <p className="text-sm text-slate-400 line-through">De R$ 79,90/mês</p>
+                    <div className="flex items-baseline justify-center gap-2">
+                      <span className="text-4xl font-bold text-emerald-400">R$ 39,90</span>
+                      <span className="text-slate-300">/mês</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-300">Palpites com IA para todos os níveis</span>
+                  <p className="text-sm text-slate-300 mt-3">
+                    Menos do que errar uma aposta por falta de estatística
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-slate-200">Análises com IA</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-slate-200">Estatísticas completas</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-slate-200">Cancela quando quiser</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-slate-200">Sem fidelidade</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-slate-200">Acesso imediato</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-300">Histórico de confrontos diretos</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-300">Estatísticas detalhadas dos times</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-300">Painel de controle completo</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-300">Cancele quando quiser</span>
-                  </div>
-                </div>
 
-                <Link href="/checkout?plan=monthly" className="block">
-                  <Button size="lg" variant="outline" className="w-full border-slate-700 hover:bg-slate-800 text-lg py-6">
-                    Começar Agora
+                  <div className="space-y-3 pt-4">
+                    <p className="text-sm text-slate-300 text-center font-medium">Escolha a forma de pagamento:</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        variant="outline"
+                        className={`${
+                          monthlyPaymentMethod === 'pix'
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
+                            : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
+                        }`}
+                        onClick={() => setMonthlyPaymentMethod('pix')}
+                      >
+                        <Smartphone className="w-4 h-4 mr-2" />
+                        PIX
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className={`${
+                          monthlyPaymentMethod === 'card'
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
+                            : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
+                        }`}
+                        onClick={() => setMonthlyPaymentMethod('card')}
+                      >
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Cartão
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Button 
+                    size="lg" 
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg py-6"
+                    onClick={() => handleSelectPlan('monthly')}
+                  >
+                    Analisar jogos com dados
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
-                </Link>
+                </CardContent>
+              </Card>
 
-                <p className="text-center text-sm text-slate-400">
-                  Renovação automática mensal
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Plano Anual */}
-            <Card className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30 relative overflow-hidden">
-              <div className="absolute top-4 right-4">
-                <Badge className="bg-emerald-500 text-white">
-                  <Star className="w-4 h-4 mr-1" />
-                  Economize 17%
-                </Badge>
-              </div>
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl text-white mb-2">Plano Anual</CardTitle>
-                <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-4xl font-bold text-white">R$ 297</span>
-                  <span className="text-slate-400">/ano</span>
+              {/* Plano Anual */}
+              <Card className="border-emerald-500/50 bg-slate-800/50 backdrop-blur-sm relative">
+                <div className="absolute top-4 right-4">
+                  <Badge className="bg-emerald-500 text-white">
+                    Melhor escolha
+                  </Badge>
                 </div>
-                <p className="text-sm text-emerald-400 mt-2">
-                  Apenas R$ 24,75/mês
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-300">Análise de dados em tempo real</span>
+                <CardHeader className="text-center pb-6">
+                  <CardTitle className="text-2xl text-white mb-4">Plano Anual</CardTitle>
+                  <div className="space-y-2">
+                    <p className="text-sm text-slate-400 line-through">De R$ 958,80/ano</p>
+                    <div className="flex items-baseline justify-center gap-2">
+                      <span className="text-4xl font-bold text-emerald-400">R$ 297</span>
+                      <span className="text-slate-300">/ano</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-300">Palpites com IA para todos os níveis</span>
+                  <p className="text-sm text-emerald-400 font-medium mt-3">
+                    R$ 24,75/mês • Economize R$ 181,80
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-slate-200">Análises com IA</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-slate-200">Estatísticas completas</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-slate-200">Cancela quando quiser</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-slate-200">Sem fidelidade</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      <span className="text-slate-200">Acesso imediato</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-300">Histórico de confrontos diretos</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-300">Estatísticas detalhadas dos times</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-300">Painel de controle completo</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-300 font-semibold">Economize R$ 61,80 por ano</span>
-                  </div>
-                </div>
 
-                <Link href="/checkout?plan=yearly" className="block">
-                  <Button size="lg" className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-lg py-6">
-                    Garantir Desconto Anual
+                  <div className="space-y-3 pt-4">
+                    <p className="text-sm text-slate-300 text-center font-medium">Escolha a forma de pagamento:</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        variant="outline"
+                        className={`${
+                          yearlyPaymentMethod === 'pix'
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
+                            : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
+                        }`}
+                        onClick={() => setYearlyPaymentMethod('pix')}
+                      >
+                        <Smartphone className="w-4 h-4 mr-2" />
+                        PIX
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className={`${
+                          yearlyPaymentMethod === 'card'
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
+                            : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
+                        }`}
+                        onClick={() => setYearlyPaymentMethod('card')}
+                      >
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Cartão
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Button 
+                    size="lg" 
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg py-6"
+                    onClick={() => handleSelectPlan('yearly')}
+                  >
+                    Analisar jogos com dados
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
-                </Link>
-
-                <p className="text-center text-sm text-slate-400">
-                  Pagamento único anual • Melhor custo-benefício
-                </p>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Final */}
-      <section className="container mx-auto px-4 py-20">
-        <Card className="bg-gradient-to-r from-emerald-600 to-teal-600 border-0 max-w-4xl mx-auto">
-          <CardContent className="p-12 text-center">
-            <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Pronto Para Apostar de Forma Inteligente?
+      {/* Urgency */}
+      <section className="bg-slate-900/50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <h3 className="text-2xl md:text-3xl font-bold text-white">
+              As análises são atualizadas diariamente
             </h3>
-            <p className="text-lg text-emerald-50 mb-8 max-w-2xl mx-auto">
-              Junte-se a centenas de apostadores que já estão tomando decisões mais inteligentes com análises de IA
+            <p className="text-lg text-slate-300">
+              Cada jogo sem estatística é uma oportunidade perdida
             </p>
-            <Link href="/checkout">
-              <Button size="lg" className="bg-white text-emerald-600 hover:bg-slate-100 text-lg px-8 py-6">
-                Começar Agora
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+            <p className="text-lg text-slate-300 font-medium">
+              Quem analisa antes, erra menos
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <Card className="bg-gradient-to-br from-emerald-600 to-emerald-500 border-0 max-w-3xl mx-auto">
+            <CardContent className="p-12 text-center">
+              <h3 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                Pare de perder dinheiro por falta de análise
+              </h3>
+              <a href="#planos">
+                <Button size="lg" className="bg-white text-emerald-600 hover:bg-slate-100 text-lg px-8 py-6">
+                  Analisar jogos com dados
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </a>
+            </CardContent>
+          </Card>
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-900/50 py-8">
+      <footer className="border-t border-slate-800 bg-slate-950/50 backdrop-blur-sm py-8">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-2 rounded-xl">
-                <Trophy className="w-5 h-5 text-white" />
-              </div>
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-emerald-400" />
               <span className="text-slate-400">© 2024 PalpitePro. Todos os direitos reservados.</span>
             </div>
             <div className="flex gap-6 text-slate-400">

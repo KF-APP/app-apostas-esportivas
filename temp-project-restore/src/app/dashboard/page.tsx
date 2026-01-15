@@ -140,7 +140,7 @@ export default function DashboardPage() {
     return null;
   }
 
-  const PRIORITY_LEAGUES = [39, 140, 78, 135, 61, 2, 3, 71, 128, 253];
+  const PRIORITY_LEAGUES = [39, 140, 78, 135, 61, 2, 3, 71, 128, 253, 11]; // 11 = Copa do Brasil
 
   const groupedFixtures = fixtures.reduce((acc, fixture) => {
     const leagueKey = `${fixture.league.id}-${fixture.league.name}`;
@@ -260,16 +260,6 @@ export default function DashboardPage() {
             </div>
             
             <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setShowDashboard(!showDashboard)}
-                variant="outline"
-                size="icon"
-                className="border-slate-700 hover:bg-slate-800"
-                title="Painel de Controle"
-              >
-                <BarChart3 className="w-4 h-4" />
-              </Button>
-              
               <Button
                 onClick={handleLogout}
                 variant="outline"
@@ -686,13 +676,16 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
 
   const getStatusBadge = () => {
     const status = fixture.fixture?.status?.short;
+    const elapsed = fixture.fixture?.status?.elapsed;
 
-    if (status === 'NS') return { text: 'Não iniciado', color: 'bg-slate-700 text-slate-300' };
-    if (status === 'LIVE' || status === '1H' || status === '2H' || status === 'HT')
-      return { text: 'Ao vivo', color: 'bg-red-600 text-white animate-pulse' };
-    if (status === 'FT') return { text: 'Finalizado', color: 'bg-emerald-600 text-white' };
+    if (status === 'NS') return { text: 'Não iniciado', color: 'bg-slate-700 text-slate-300', time: null };
+    if (status === 'LIVE' || status === '1H' || status === '2H' || status === 'HT') {
+      const timeText = elapsed ? `${elapsed}'` : 'Ao vivo';
+      return { text: 'Ao vivo', color: 'bg-red-600 text-white animate-pulse', time: timeText };
+    }
+    if (status === 'FT') return { text: 'Finalizado', color: 'bg-emerald-600 text-white', time: null };
 
-    return { text: 'Aguardando', color: 'bg-gray-600 text-white' };
+    return { text: 'Aguardando', color: 'bg-gray-600 text-white', time: null };
   };
 
   const statusBadge = getStatusBadge();
@@ -705,6 +698,7 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <Badge variant="outline" className={statusBadge.color}>
                 {statusBadge.text}
+                {statusBadge.time && ` • ${statusBadge.time}`}
               </Badge>
               <Badge variant="outline" className="border-slate-700 text-slate-300">
                 <Calendar className="w-3 h-3 mr-1" />
@@ -782,7 +776,14 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
                   color="emerald"
                   suggestions={suggestions.filter(s => s.riskLevel === 'conservative')}
                   matchFinished={matchFinished}
-                  actualResult={fixture.goals}
+                  actualResult={{
+                    home: fixture.goals.home,
+                    away: fixture.goals.away,
+                    homeTeamName: fixture.teams.home.name,
+                    awayTeamName: fixture.teams.away.name
+                  }}
+                  homeTeam={fixture.teams.home.name}
+                  awayTeam={fixture.teams.away.name}
                 />
                 
                 <RiskLevelSection
@@ -792,7 +793,14 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
                   color="yellow"
                   suggestions={suggestions.filter(s => s.riskLevel === 'medium')}
                   matchFinished={matchFinished}
-                  actualResult={fixture.goals}
+                  actualResult={{
+                    home: fixture.goals.home,
+                    away: fixture.goals.away,
+                    homeTeamName: fixture.teams.home.name,
+                    awayTeamName: fixture.teams.away.name
+                  }}
+                  homeTeam={fixture.teams.home.name}
+                  awayTeam={fixture.teams.away.name}
                 />
                 
                 <RiskLevelSection
@@ -802,7 +810,14 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
                   color="red"
                   suggestions={suggestions.filter(s => s.riskLevel === 'high')}
                   matchFinished={matchFinished}
-                  actualResult={fixture.goals}
+                  actualResult={{
+                    home: fixture.goals.home,
+                    away: fixture.goals.away,
+                    homeTeamName: fixture.teams.home.name,
+                    awayTeamName: fixture.teams.away.name
+                  }}
+                  homeTeam={fixture.teams.home.name}
+                  awayTeam={fixture.teams.away.name}
                 />
               </div>
             </>
@@ -831,6 +846,7 @@ function createFallbackBet(level: RiskLevel, analysis: MatchAnalysis): BetSugges
       prediction: bothScore ? 'Sim' : 'Não',
       reasoning: `Baseado nas médias de gols: ${analysis.homeTeam.name} (${analysis.homeTeam.avgGoalsScored.toFixed(1)}) e ${analysis.awayTeam.name} (${analysis.awayTeam.avgGoalsScored.toFixed(1)})`,
       confidence: bothScore ? 65 : 60,
+      odds: 1.65,
       riskLevel: 'conservative'
     };
   } else if (level === 'medium') {
@@ -842,6 +858,7 @@ function createFallbackBet(level: RiskLevel, analysis: MatchAnalysis): BetSugges
       prediction: overUnder,
       reasoning: `Média combinada de gols: ${avgTotalGoals.toFixed(1)} gols por jogo`,
       confidence: 58,
+      odds: 1.95,
       riskLevel: 'medium'
     };
   } else {
@@ -854,6 +871,7 @@ function createFallbackBet(level: RiskLevel, analysis: MatchAnalysis): BetSugges
       prediction: `${homeGoals}-${awayGoals}`,
       reasoning: `Baseado nas médias de gols de cada time`,
       confidence: 35,
+      odds: 9.50,
       riskLevel: 'high'
     };
   }
@@ -944,6 +962,19 @@ function processH2H(h2hFixtures: any[], homeTeamId: number) {
   };
 }
 
+/**
+ * Função auxiliar para normalizar texto de previsões
+ * Remove acentos, espaços extras, converte para minúsculas
+ */
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+    .replace(/\s+/g, ' ') // Remove espaços extras
+    .trim();
+}
+
 function RiskLevelSection({ 
   level, 
   title, 
@@ -951,7 +982,9 @@ function RiskLevelSection({
   color, 
   suggestions,
   matchFinished,
-  actualResult
+  actualResult,
+  homeTeam,
+  awayTeam
 }: { 
   level: RiskLevel;
   title: string;
@@ -959,7 +992,14 @@ function RiskLevelSection({
   color: string;
   suggestions: BetSuggestion[];
   matchFinished: boolean;
-  actualResult: { home: number | null; away: number | null };
+  actualResult: { 
+    home: number | null; 
+    away: number | null;
+    homeTeamName: string;
+    awayTeamName: string;
+  };
+  homeTeam: string;
+  awayTeam: string;
 }) {
   const colorClasses = {
     emerald: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
@@ -967,7 +1007,16 @@ function RiskLevelSection({
     red: 'bg-red-500/10 border-red-500/30 text-red-400',
   };
 
-  const checkBetResult = (suggestion: BetSuggestion) => {
+  /**
+   * Função robusta para verificar se uma aposta está correta
+   * Trata todos os tipos de apostas com normalização de texto
+   * Aceita nomes reais dos times em apostas de Match Winner e Chance Dupla
+   * 
+   * @param suggestion - Objeto com type e prediction da aposta
+   * @returns true se acertou, false se errou, null se jogo não terminou
+   */
+  const checkBetResult = (suggestion: BetSuggestion): boolean | null => {
+    // Se jogo não finalizou ou não tem resultado, retorna null
     if (!matchFinished || actualResult.home === null || actualResult.away === null) {
       return null;
     }
@@ -976,52 +1025,210 @@ function RiskLevelSection({
     const awayGoals = actualResult.away;
     const totalGoals = homeGoals + awayGoals;
 
+    // Normaliza a previsão para facilitar comparações
+    const normalizedPrediction = normalizeText(suggestion.prediction);
+    
+    // Normaliza nomes dos times vindos do resultado real da API
+    const normalizedHomeTeam = normalizeText(actualResult.homeTeamName);
+    const normalizedAwayTeam = normalizeText(actualResult.awayTeamName);
+
+    console.log('🔍 Verificando palpite:', {
+      type: suggestion.type,
+      predictionOriginal: suggestion.prediction,
+      predictionNormalized: normalizedPrediction,
+      homeTeamFromAPI: actualResult.homeTeamName,
+      awayTeamFromAPI: actualResult.awayTeamName,
+      homeTeamNormalized: normalizedHomeTeam,
+      awayTeamNormalized: normalizedAwayTeam,
+      homeGoals,
+      awayGoals,
+      totalGoals
+    });
+
     let isCorrect = false;
 
     switch (suggestion.type) {
       case 'match_winner':
-        const prediction = suggestion.prediction.toLowerCase().trim();
+        // Vencedor do jogo: aceita nomes reais dos times ou palavras genéricas
         
-        if (prediction.includes('casa') || prediction === 'home') {
+        // Verifica se menciona o time da casa (nome real ou genérico)
+        const isHomePrediction = normalizedPrediction.includes('casa') || 
+                                 normalizedPrediction === 'home' || 
+                                 normalizedPrediction === '1' ||
+                                 normalizedPrediction.includes(normalizedHomeTeam);
+        
+        // Verifica se menciona o time visitante (nome real ou genérico)
+        const isAwayPrediction = normalizedPrediction.includes('fora') || 
+                                 normalizedPrediction === 'away' || 
+                                 normalizedPrediction === '2' ||
+                                 normalizedPrediction.includes(normalizedAwayTeam);
+        
+        // Verifica se menciona empate
+        const isDrawPrediction = normalizedPrediction.includes('empate') || 
+                                 normalizedPrediction === 'draw' || 
+                                 normalizedPrediction === 'x';
+        
+        // Determina o resultado correto baseado nas condições
+        if (isHomePrediction && !isDrawPrediction) {
           isCorrect = homeGoals > awayGoals;
-        } else if (prediction.includes('fora') || prediction === 'away') {
+          console.log('✅ Match Winner - Casa/Time da Casa:', { 
+            isCorrect, 
+            homeGoals, 
+            awayGoals,
+            explicacao: `Casa venceu? ${homeGoals} > ${awayGoals}` 
+          });
+        } else if (isAwayPrediction && !isDrawPrediction) {
           isCorrect = awayGoals > homeGoals;
-        } else if (prediction.includes('empate') || prediction === 'draw') {
+          console.log('✅ Match Winner - Fora/Time Visitante:', { 
+            isCorrect, 
+            homeGoals, 
+            awayGoals,
+            explicacao: `Fora venceu? ${awayGoals} > ${homeGoals}` 
+          });
+        } else if (isDrawPrediction) {
           isCorrect = homeGoals === awayGoals;
+          console.log('✅ Match Winner - Empate:', { 
+            isCorrect, 
+            homeGoals, 
+            awayGoals,
+            explicacao: `Empatou? ${homeGoals} == ${awayGoals}` 
+          });
+        } else {
+          console.warn('⚠️ Match Winner: Previsão não reconhecida:', normalizedPrediction);
+        }
+        break;
+
+      case 'double_chance':
+        // Chance Dupla: aceita nomes reais dos times ou palavras genéricas
+        
+        // Verifica se contém "ou empate" no palpite
+        const hasDrawOption = normalizedPrediction.includes('empate') || 
+                              normalizedPrediction.includes('draw') ||
+                              normalizedPrediction.includes('ou x') ||
+                              normalizedPrediction.includes('x ou');
+        
+        // Verifica se menciona o time da casa (nome real ou genérico)
+        const mentionsHome = normalizedPrediction.includes('casa') || 
+                            normalizedPrediction.includes('home') ||
+                            normalizedPrediction.includes('1') ||
+                            normalizedPrediction.includes(normalizedHomeTeam);
+        
+        // Verifica se menciona o time visitante (nome real ou genérico)
+        const mentionsAway = normalizedPrediction.includes('fora') || 
+                            normalizedPrediction.includes('away') ||
+                            normalizedPrediction.includes('2') ||
+                            normalizedPrediction.includes(normalizedAwayTeam);
+        
+        // Casa ou Empate (1X) - Ex: "Flamengo ou Empate", "Casa ou Empate", "1X"
+        if ((mentionsHome && hasDrawOption) || normalizedPrediction === '1x') {
+          isCorrect = homeGoals >= awayGoals; // Casa ganhou ou empatou
+          console.log('✅ Chance Dupla - Casa/Time da Casa ou Empate (1X):', { 
+            homeGoals, 
+            awayGoals, 
+            isCorrect, 
+            explicacao: `Casa >= Fora? ${homeGoals} >= ${awayGoals}` 
+          });
+        } 
+        // Fora ou Empate (X2) - Ex: "Palmeiras ou Empate", "Fora ou Empate", "X2", "2X"
+        else if ((mentionsAway && hasDrawOption) || normalizedPrediction === 'x2' || normalizedPrediction === '2x') {
+          isCorrect = awayGoals >= homeGoals; // Fora ganhou ou empatou
+          console.log('✅ Chance Dupla - Fora/Time Visitante ou Empate (X2):', { 
+            homeGoals, 
+            awayGoals, 
+            isCorrect, 
+            explicacao: `Fora >= Casa? ${awayGoals} >= ${homeGoals}` 
+          });
+        } 
+        // Casa ou Fora (12) - Ex: "Flamengo ou Palmeiras", "Casa ou Fora", "12"
+        else if ((mentionsHome && mentionsAway && !hasDrawOption) || normalizedPrediction === '12') {
+          isCorrect = homeGoals !== awayGoals; // Qualquer um ganhou (não empatou)
+          console.log('✅ Chance Dupla - Casa ou Fora (12):', { 
+            homeGoals, 
+            awayGoals, 
+            isCorrect, 
+            explicacao: `Não empatou? ${homeGoals} != ${awayGoals}` 
+          });
+        } else {
+          console.warn('⚠️ Double Chance: Previsão não reconhecida:', normalizedPrediction);
         }
         break;
 
       case 'both_teams_score':
-        const bothScorePrediction = suggestion.prediction.toLowerCase();
-        if (bothScorePrediction.includes('sim') || bothScorePrediction === 'yes') {
+        // Ambos Marcam: Sim ou Não
+        if (normalizedPrediction.includes('sim') || normalizedPrediction === 'yes') {
           isCorrect = homeGoals > 0 && awayGoals > 0;
-        } else {
+          console.log('✅ Both Teams Score - Sim:', { 
+            isCorrect, 
+            homeGoals, 
+            awayGoals, 
+            ambosMarcaramReal: homeGoals > 0 && awayGoals > 0 
+          });
+        } else if (normalizedPrediction.includes('nao') || normalizedPrediction === 'no') {
           isCorrect = homeGoals === 0 || awayGoals === 0;
+          console.log('✅ Both Teams Score - Não:', { 
+            isCorrect, 
+            homeGoals, 
+            awayGoals, 
+            peloMenosUmNaoMarcou: homeGoals === 0 || awayGoals === 0 
+          });
+        } else {
+          console.warn('⚠️ Both Teams Score: Previsão não reconhecida:', normalizedPrediction);
         }
         break;
 
       case 'total_goals':
+        // Total de Gols: Mais/Menos de X.5 gols
         const thresholdMatch = suggestion.prediction.match(/[\d.]+/);
         if (thresholdMatch) {
           const threshold = parseFloat(thresholdMatch[0]);
-          if (suggestion.prediction.toLowerCase().includes('mais')) {
+          if (normalizedPrediction.includes('mais') || normalizedPrediction.includes('over')) {
             isCorrect = totalGoals > threshold;
-          } else {
+            console.log('✅ Total Goals - Mais:', { 
+              isCorrect, 
+              totalGoals, 
+              threshold, 
+              explicacao: `${totalGoals} > ${threshold}` 
+            });
+          } else if (normalizedPrediction.includes('menos') || normalizedPrediction.includes('under')) {
             isCorrect = totalGoals < threshold;
+            console.log('✅ Total Goals - Menos:', { 
+              isCorrect, 
+              totalGoals, 
+              threshold, 
+              explicacao: `${totalGoals} < ${threshold}` 
+            });
+          } else {
+            console.warn('⚠️ Total Goals: Tipo não reconhecido (Mais/Menos):', normalizedPrediction);
           }
+        } else {
+          console.warn('⚠️ Total Goals: Threshold não encontrado na previsão:', suggestion.prediction);
         }
         break;
 
       case 'correct_score':
+        // Placar Exato: X-Y
         const scoreMatch = suggestion.prediction.match(/(\d+)-(\d+)/);
         if (scoreMatch) {
           const predictedHome = parseInt(scoreMatch[1]);
           const predictedAway = parseInt(scoreMatch[2]);
           isCorrect = homeGoals === predictedHome && awayGoals === predictedAway;
+          console.log('✅ Correct Score:', { 
+            isCorrect, 
+            placarReal: `${homeGoals}-${awayGoals}`, 
+            placarPrevisto: `${predictedHome}-${predictedAway}`,
+            explicacao: `Placar exato? ${homeGoals}==${predictedHome} && ${awayGoals}==${predictedAway}` 
+          });
+        } else {
+          console.warn('⚠️ Correct Score: Formato de placar não reconhecido:', suggestion.prediction);
         }
         break;
+
+      default:
+        console.warn('⚠️ Tipo de aposta desconhecido:', suggestion.type);
+        return null;
     }
 
+    console.log('🎯 Resultado final:', { type: suggestion.type, isCorrect });
     return isCorrect;
   };
 
@@ -1045,13 +1252,18 @@ function RiskLevelSection({
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
                     <h5 className="font-semibold text-white">{suggestion.description}</h5>
-                    <p className="text-sm text-slate-400 mt-1">{suggestion.reasoning}</p>
+                    <p className="text-sm text-white mt-1">{suggestion.reasoning}</p>
                   </div>
                   <div className="flex items-center gap-2 ml-2">
-                    <Badge variant="outline" className="border-slate-700">
+                    <Badge variant="outline" className="border-slate-700 text-white">
                       <Target className="w-3 h-3 mr-1" />
                       {suggestion.confidence}%
                     </Badge>
+                    {suggestion.odds && (
+                      <Badge variant="outline" className="border-slate-700 text-white bg-slate-800/50">
+                        ODD: {suggestion.odds.toFixed(2)}
+                      </Badge>
+                    )}
                     {matchFinished && betResult !== null && (
                       <Badge 
                         variant="outline" 

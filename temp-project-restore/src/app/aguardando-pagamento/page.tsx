@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -12,17 +12,32 @@ import {
   CheckCircle2, 
   Mail,
   ArrowRight,
-  Sparkles,
   Loader2,
   Clock,
-  AlertCircle
+  AlertCircle,
+  ExternalLink,
+  QrCode,
+  CreditCard
 } from 'lucide-react';
 
-function SuccessContent() {
+// Links de pagamento atualizados
+const PAYMENT_LINKS = {
+  monthly: {
+    pix: 'https://pag.ae/81oMp4aB9',
+    card: 'https://pag.ae/81oMoCS4p',
+  },
+  yearly: {
+    pix: 'https://pag.ae/81oky7p4o',
+    card: 'https://pag.ae/81okzzFnJ',
+  },
+};
+
+function AguardandoPagamentoContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [checkoutData, setCheckoutData] = useState<any>(null);
   const [checking, setChecking] = useState(true);
+  const [selectedMethod, setSelectedMethod] = useState<'pix' | 'card'>('pix');
 
   useEffect(() => {
     const email = searchParams.get('email');
@@ -47,6 +62,15 @@ function SuccessContent() {
 
   const handleGoToLogin = () => {
     router.push('/login');
+  };
+
+  const handleOpenPayment = (paymentMethod: 'pix' | 'card') => {
+    if (checkoutData?.plan) {
+      const paymentLink = PAYMENT_LINKS[checkoutData.plan as keyof typeof PAYMENT_LINKS]?.[paymentMethod];
+      if (paymentLink) {
+        window.open(paymentLink, '_blank');
+      }
+    }
   };
 
   if (!checkoutData) {
@@ -107,12 +131,49 @@ function SuccessContent() {
                 </AlertDescription>
               </Alert>
 
+              <Card className="bg-orange-500/10 border-orange-500/30">
+                <CardContent className="p-6">
+                  <div className="text-center space-y-4">
+                    <ExternalLink className="w-12 h-12 text-orange-400 mx-auto" />
+                    <div>
+                      <h4 className="font-semibold text-orange-400 mb-2">Ainda não pagou?</h4>
+                      <p className="text-sm text-slate-300 mb-4">
+                        Se a página de pagamento não abriu automaticamente, escolha sua forma de pagamento abaixo
+                      </p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button 
+                          onClick={() => {
+                            setSelectedMethod('pix');
+                            handleOpenPayment('pix');
+                          }}
+                          className={`bg-emerald-500 hover:bg-emerald-500 text-white font-medium transition-all ${
+                            selectedMethod === 'pix' ? 'ring-2 ring-blue-600' : ''
+                          }`}
+                        >
+                          <QrCode className="w-4 h-4 mr-2" />
+                          PIX
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            setSelectedMethod('card');
+                            handleOpenPayment('card');
+                          }}
+                          className={`bg-emerald-500 hover:bg-emerald-500 text-white font-medium transition-all ${
+                            selectedMethod === 'card' ? 'ring-2 ring-blue-600' : ''
+                          }`}
+                        >
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Cartão
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <Card className="bg-slate-900/50 border-slate-800">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-emerald-500" />
-                    Detalhes do Pedido
-                  </CardTitle>
+                  <CardTitle className="text-white">Detalhes do Pedido</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-3">
@@ -231,7 +292,7 @@ function SuccessContent() {
   );
 }
 
-export default function SuccessPage() {
+export default function AguardandoPagamentoPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
@@ -241,7 +302,7 @@ export default function SuccessPage() {
         </div>
       </div>
     }>
-      <SuccessContent />
+      <AguardandoPagamentoContent />
     </Suspense>
   );
 }

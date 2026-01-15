@@ -120,40 +120,46 @@ export function generateBetSuggestions(analysis: MatchAnalysis): BetSuggestion[]
   }
   
   // REGRA: Time com > 70% não derrotas → Chance Dupla
-  if (homeUndefeatedRate > 0.70) {
-    const confidence = Math.min(85, Math.round(
-      homeUndefeatedRate * 100
-    ));
+  // IMPORTANTE: Sugerir APENAS a chance dupla do time com MELHOR estatística para evitar contradições
+  if (homeUndefeatedRate > 0.70 || awayUndefeatedRate > 0.70) {
+    // Priorizar o time com MAIOR taxa de não-derrota
+    // Se empate, priorizar mandante (vantagem de casa)
+    const shouldSuggestHome = homeUndefeatedRate > awayUndefeatedRate || 
+                              (homeUndefeatedRate === awayUndefeatedRate && homeUndefeatedRate > 0.70);
     
-    suggestions.push({
-      id: `${analysis.fixtureId}-double-conservative-home`,
-      fixtureId: analysis.fixtureId,
-      type: 'double_chance',
-      riskLevel: 'conservative',
-      description: 'Chance Dupla',
-      odds: 1.60,
-      confidence: confidence,
-      reasoning: `${analysis.homeTeam.name} não perde em ${(homeUndefeatedRate * 100).toFixed(0)}% dos últimos jogos (forma: ${analysis.homeTeam.form}). Alta consistência jogando em casa.`,
-      prediction: `${analysis.homeTeam.name} ou Empate`,
-    });
-  }
-  
-  if (awayUndefeatedRate > 0.70) {
-    const confidence = Math.min(82, Math.round(
-      awayUndefeatedRate * 95
-    ));
-    
-    suggestions.push({
-      id: `${analysis.fixtureId}-double-conservative-away`,
-      fixtureId: analysis.fixtureId,
-      type: 'double_chance',
-      riskLevel: 'conservative',
-      description: 'Chance Dupla',
-      odds: 1.65,
-      confidence: confidence,
-      reasoning: `${analysis.awayTeam.name} não perde em ${(awayUndefeatedRate * 100).toFixed(0)}% dos últimos jogos (forma: ${analysis.awayTeam.form}). Boa consistência fora de casa.`,
-      prediction: `${analysis.awayTeam.name} ou Empate`,
-    });
+    if (shouldSuggestHome && homeUndefeatedRate > 0.70) {
+      const confidence = Math.min(85, Math.round(
+        homeUndefeatedRate * 100
+      ));
+      
+      suggestions.push({
+        id: `${analysis.fixtureId}-double-conservative-home`,
+        fixtureId: analysis.fixtureId,
+        type: 'double_chance',
+        riskLevel: 'conservative',
+        description: 'Chance Dupla',
+        odds: 1.60,
+        confidence: confidence,
+        reasoning: `${analysis.homeTeam.name} não perde em ${(homeUndefeatedRate * 100).toFixed(0)}% dos últimos jogos (forma: ${analysis.homeTeam.form}). Alta consistência jogando em casa.`,
+        prediction: `${analysis.homeTeam.name} ou Empate`,
+      });
+    } else if (awayUndefeatedRate > 0.70) {
+      const confidence = Math.min(82, Math.round(
+        awayUndefeatedRate * 95
+      ));
+      
+      suggestions.push({
+        id: `${analysis.fixtureId}-double-conservative-away`,
+        fixtureId: analysis.fixtureId,
+        type: 'double_chance',
+        riskLevel: 'conservative',
+        description: 'Chance Dupla',
+        odds: 1.65,
+        confidence: confidence,
+        reasoning: `${analysis.awayTeam.name} não perde em ${(awayUndefeatedRate * 100).toFixed(0)}% dos últimos jogos (forma: ${analysis.awayTeam.form}). Boa consistência fora de casa.`,
+        prediction: `${analysis.awayTeam.name} ou Empate`,
+      });
+    }
   }
   
   // REGRA: Ambos marcam > 65% dos jogos → Ambas Marcam Sim

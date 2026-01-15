@@ -15,26 +15,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Usar Admin Client para autenticação (SERVICE_ROLE_KEY)
+    // Usar Admin Client para buscar na tabela
     const supabase = createAdminClient();
     
-    // Autenticar via Supabase Auth usando signInWithPassword
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (authError || !authData.user) {
-      console.error('❌ Erro na autenticação:', authError?.message);
-      return NextResponse.json(
-        { error: 'Email ou senha incorretos' },
-        { status: 401 }
-      );
-    }
-
-    console.log('✅ Autenticação bem-sucedida no Supabase Auth');
-
-    // Buscar assinatura no Supabase (admin client já ignora RLS)
+    // Buscar usuário diretamente na tabela subscriptions_complete
+    console.log('📡 Buscando usuário na tabela subscriptions_complete...');
     const { data: subscriptions, error: fetchError } = await supabase
       .from('subscriptions_complete')
       .select('*')
@@ -42,30 +27,51 @@ export async function POST(request: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (fetchError) {
-      console.error('❌ Erro ao buscar assinatura:', fetchError);
+      console.error('❌ Erro ao buscar usuário:', fetchError);
       return NextResponse.json(
-        { error: 'Erro ao verificar assinatura. Entre em contato com o suporte.' },
+        { error: 'Erro ao verificar credenciais. Entre em contato com o suporte.' },
         { status: 500 }
       );
     }
 
     if (!subscriptions || subscriptions.length === 0) {
-      console.error('❌ Assinatura não encontrada');
+      console.error('❌ Usuário não encontrado');
       return NextResponse.json(
-        { error: 'Assinatura não encontrada. Entre em contato com o suporte.' },
-        { status: 403 }
+        { error: 'Email ou senha incorretos' },
+        { status: 401 }
       );
     }
 
     // Pegar a assinatura mais recente
     const subscription = subscriptions[0];
 
-    console.log('📋 Assinatura encontrada:', {
+    console.log('📋 Usuário encontrado:', {
       id: subscription.id,
+      email: subscription.user_email,
       status: subscription.status,
       plan: subscription.plan_type,
-      end_date: subscription.end_date
+      end_date: subscription.end_date,
+      has_password: !!subscription.password
     });
+
+    // Validar senha
+    if (!subscription.password) {
+      console.error('❌ Senha não configurada para este usuário');
+      return NextResponse.json(
+        { error: 'Senha não configurada. Entre em contato com o suporte.' },
+        { status: 500 }
+      );
+    }
+
+    if (subscription.password !== password) {
+      console.error('❌ Senha incorreta');
+      return NextResponse.json(
+        { error: 'Email ou senha incorretos' },
+        { status: 401 }
+      );
+    }
+
+    console.log('✅ Senha validada com sucesso');
 
     // Verificar status da assinatura
     if (subscription.status !== 'active') {
@@ -76,10 +82,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('✅ Status da assinatura: ATIVO');
+
     // Verificar expiração
     if (subscription.end_date) {
       const expiresAt = new Date(subscription.end_date);
       const now = new Date();
+
+      console.log('📅 Verificando expiração:', {
+        end_date: subscription.end_date,
+        expiresAt: expiresAt.toISOString(),
+        now: now.toISOString(),
+        expired: expiresAt < now
+      });
 
       if (expiresAt < now) {
         console.warn('⚠️ Assinatura expirada');
@@ -97,12 +112,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log('✅ Assinatura válida e dentro do prazo');
+
     // Criar dados de autenticação
     const authDataCookie = {
       authenticated: true,
       email: subscription.user_email,
       user: {
-        id: authData.user.id,
+        id: subscription.id,
         email: subscription.user_email,
         name: subscription.user_name
       },
@@ -134,6 +151,7 @@ export async function POST(request: NextRequest) {
     });
 
     console.log('🍪 Cookie setado com sucesso');
+    console.log('🎉 LOGIN COMPLETO - Redirecionando para dashboard');
 
     return response;
   } catch (error) {
