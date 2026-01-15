@@ -15,21 +15,13 @@ import {
   Loader2,
   Clock,
   AlertCircle,
-  ExternalLink,
-  QrCode,
-  CreditCard
+  ExternalLink
 } from 'lucide-react';
 
-// Links de pagamento atualizados
-const PAYMENT_LINKS = {
-  monthly: {
-    pix: 'https://pag.ae/81oMp4aB9',
-    card: 'https://pag.ae/81oMoCS4p',
-  },
-  yearly: {
-    pix: 'https://pag.ae/81oky7p4o',
-    card: 'https://pag.ae/81okzzFnJ',
-  },
+// Links de teste por 7 dias
+const TRIAL_LINKS = {
+  monthly: 'https://pag.ae/81oMp4aB9',
+  yearly: 'https://pag.ae/81oky7p4o',
 };
 
 function AguardandoPagamentoContent() {
@@ -37,7 +29,6 @@ function AguardandoPagamentoContent() {
   const searchParams = useSearchParams();
   const [checkoutData, setCheckoutData] = useState<any>(null);
   const [checking, setChecking] = useState(true);
-  const [selectedMethod, setSelectedMethod] = useState<'pix' | 'card'>('pix');
 
   useEffect(() => {
     const email = searchParams.get('email');
@@ -64,11 +55,11 @@ function AguardandoPagamentoContent() {
     router.push('/login');
   };
 
-  const handleOpenPayment = (paymentMethod: 'pix' | 'card') => {
+  const handleStartTrial = () => {
     if (checkoutData?.plan) {
-      const paymentLink = PAYMENT_LINKS[checkoutData.plan as keyof typeof PAYMENT_LINKS]?.[paymentMethod];
-      if (paymentLink) {
-        window.open(paymentLink, '_blank');
+      const trialLink = TRIAL_LINKS[checkoutData.plan as keyof typeof TRIAL_LINKS];
+      if (trialLink) {
+        window.open(trialLink, '_blank');
       }
     }
   };
@@ -138,34 +129,14 @@ function AguardandoPagamentoContent() {
                     <div>
                       <h4 className="font-semibold text-orange-400 mb-2">Ainda não pagou?</h4>
                       <p className="text-sm text-slate-300 mb-4">
-                        Se a página de pagamento não abriu automaticamente, escolha sua forma de pagamento abaixo
+                        Clique no botão abaixo para iniciar seu teste por 7 dias
                       </p>
-                      <div className="grid grid-cols-2 gap-3">
-                        <Button 
-                          onClick={() => {
-                            setSelectedMethod('pix');
-                            handleOpenPayment('pix');
-                          }}
-                          className={`bg-emerald-500 hover:bg-emerald-500 text-white font-medium transition-all ${
-                            selectedMethod === 'pix' ? 'ring-2 ring-blue-600' : ''
-                          }`}
-                        >
-                          <QrCode className="w-4 h-4 mr-2" />
-                          PIX
-                        </Button>
-                        <Button 
-                          onClick={() => {
-                            setSelectedMethod('card');
-                            handleOpenPayment('card');
-                          }}
-                          className={`bg-emerald-500 hover:bg-emerald-500 text-white font-medium transition-all ${
-                            selectedMethod === 'card' ? 'ring-2 ring-blue-600' : ''
-                          }`}
-                        >
-                          <CreditCard className="w-4 h-4 mr-2" />
-                          Cartão
-                        </Button>
-                      </div>
+                      <Button 
+                        onClick={handleStartTrial}
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium w-full"
+                      >
+                        Teste por 7 dias
+                      </Button>
                     </div>
                   </div>
                 </CardContent>

@@ -26,7 +26,8 @@ import {
   Users,
   User,
   Radio,
-  LogOut
+  LogOut,
+  Flag
 } from 'lucide-react';
 import { 
   getFixturesByDate, 
@@ -51,6 +52,7 @@ export default function DashboardPage() {
   const [selectedSport, setSelectedSport] = useState('football');
   const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
   const [selectedGender, setSelectedGender] = useState<'all' | 'male' | 'female'>('all');
+  const [selectedCountry, setSelectedCountry] = useState<'all' | 'brazil'>('all');
   const [showLiveOnly, setShowLiveOnly] = useState(false);
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [loadingFixtures, setLoadingFixtures] = useState(false);
@@ -175,6 +177,13 @@ export default function DashboardPage() {
     });
   }
 
+  if (selectedCountry === 'brazil') {
+    displayedGroups = displayedGroups.filter(group => {
+      const country = group.league.country.toLowerCase();
+      return country === 'brazil' || country === 'brasil';
+    });
+  }
+
   // Filtro "Ao Vivo" - mostra apenas ligas que têm jogos ao vivo
   if (showLiveOnly) {
     displayedGroups = displayedGroups.map(group => ({
@@ -228,6 +237,14 @@ export default function DashboardPage() {
       } else {
         return !isFemale;
       }
+    });
+  }
+
+  // Aplicar filtro de país nas ligas disponíveis
+  if (selectedCountry === 'brazil') {
+    availableLeagues = availableLeagues.filter(group => {
+      const country = group.league.country.toLowerCase();
+      return country === 'brazil' || country === 'brasil';
     });
   }
 
@@ -318,7 +335,7 @@ export default function DashboardPage() {
 
                   <div className="space-y-2 sm:space-y-3">
                     <h3 className="text-xs sm:text-sm font-semibold text-slate-300">Categoria</h3>
-                    <div className="flex gap-1.5 sm:gap-2">
+                    <div className="flex gap-1.5 sm:gap-2 flex-wrap">
                       <Button
                         variant={selectedGender === 'all' ? 'default' : 'outline'}
                         size="sm"
@@ -345,6 +362,15 @@ export default function DashboardPage() {
                       >
                         <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                         Feminino
+                      </Button>
+                      <Button
+                        variant={selectedCountry === 'brazil' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setSelectedCountry(selectedCountry === 'brazil' ? 'all' : 'brazil')}
+                        className={`text-xs sm:text-sm h-7 sm:h-9 ${selectedCountry === 'brazil' ? 'bg-yellow-600 hover:bg-yellow-700' : 'border-slate-700 hover:bg-slate-800'}`}
+                      >
+                        <Flag className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                        Brasil
                       </Button>
                     </div>
                   </div>
@@ -496,6 +522,7 @@ export default function DashboardPage() {
                           setShowLiveOnly(false);
                           setSelectedLeague(null);
                           setSelectedGender('all');
+                          setSelectedCountry('all');
                         }}
                         variant="outline"
                         size="sm"
