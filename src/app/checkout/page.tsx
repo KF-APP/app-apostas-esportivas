@@ -17,17 +17,25 @@ import {
   ArrowLeft,
   Loader2,
   Star,
-  AlertCircle
+  AlertCircle,
+  CreditCard,
+  QrCode
 } from 'lucide-react';
 import Link from 'next/link';
 import { PLAN_PRICES } from '@/lib/payment';
 
 type PlanType = 'monthly' | 'yearly';
 
-// Links de teste grátis do Mercado Pago
-const FREE_TRIAL_LINKS = {
-  monthly: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=70081b96f45d4d23a339caa944dc6c26',
-  yearly: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=f02a5b40e82240d48e7b4dcc1dcb8ca1',
+// Links de pagamento do Mercado Pago
+const PAYMENT_LINKS = {
+  monthly: {
+    pix: 'https://mpago.la/1s9ZWNM',
+    card: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=70081b96f45d4d23a339caa944dc6c26',
+  },
+  yearly: {
+    pix: 'https://mpago.la/23QTLXE',
+    card: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=f02a5b40e82240d48e7b4dcc1dcb8ca1',
+  },
 };
 
 function CheckoutContent() {
@@ -74,7 +82,7 @@ function CheckoutContent() {
 
   const currentPlan = plans[selectedPlan];
 
-  const handleStartFreeTrial = async () => {
+  const handlePayment = async (method: 'pix' | 'card') => {
     if (!formData.name || !formData.email || !formData.password) {
       alert('Por favor, preencha todos os campos');
       return;
@@ -94,6 +102,7 @@ function CheckoutContent() {
         email: formData.email,
         password: formData.password,
         plan: selectedPlan,
+        paymentMethod: method,
         timestamp: new Date().toISOString(),
       }));
 
@@ -119,21 +128,21 @@ function CheckoutContent() {
       // Log de sucesso
       console.log('✅ Usuário criado/atualizado:', result);
 
-      // Obter link de teste grátis correto
-      const freeTrialLink = FREE_TRIAL_LINKS[selectedPlan];
+      // Obter link de pagamento correto
+      const paymentLink = PAYMENT_LINKS[selectedPlan][method];
 
-      if (!freeTrialLink) {
-        console.error('❌ Link de teste grátis não encontrado');
-        alert('Erro: Link de teste grátis não configurado. Entre em contato com o suporte.');
+      if (!paymentLink) {
+        console.error('❌ Link de pagamento não encontrado');
+        alert('Erro: Link de pagamento não configurado. Entre em contato com o suporte.');
         setLoading(false);
         return;
       }
 
-      console.log('🔗 Redirecionando para teste grátis:', freeTrialLink);
+      console.log('🔗 Redirecionando para pagamento:', paymentLink);
 
       // SOLUÇÃO MOBILE: Criar elemento <a> temporário e simular clique
       const link = document.createElement('a');
-      link.href = freeTrialLink;
+      link.href = paymentLink;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
       document.body.appendChild(link);
@@ -142,7 +151,7 @@ function CheckoutContent() {
       
       // Pequeno delay para garantir que o link abriu antes de redirecionar
       setTimeout(() => {
-        router.push(`/aguardando-pagamento?plan=${selectedPlan}&email=${encodeURIComponent(formData.email)}`);
+        router.push(`/aguardando-pagamento?plan=${selectedPlan}&email=${encodeURIComponent(formData.email)}&method=${method}`);
       }, 300);
 
     } catch (error) {
@@ -320,8 +329,29 @@ function CheckoutContent() {
                     </Alert>
 
                     <div className="space-y-3">
+                      <p className="text-sm font-semibold text-white text-center">Escolha a forma de pagamento:</p>
+                      
                       <Button 
-                        onClick={handleStartFreeTrial}
+                        onClick={() => handlePayment('pix')}
+                        size="lg" 
+                        className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-lg font-semibold"
+                        disabled={loading || !isFormValid}
+                      >
+                        {loading ? (
+                          <>
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                            Processando...
+                          </>
+                        ) : (
+                          <>
+                            <QrCode className="w-5 h-5 mr-2" />
+                            Pagar com PIX
+                          </>
+                        )}
+                      </Button>
+
+                      <Button 
+                        onClick={() => handlePayment('card')}
                         size="lg" 
                         className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-lg font-semibold"
                         disabled={loading || !isFormValid}
@@ -333,13 +363,14 @@ function CheckoutContent() {
                           </>
                         ) : (
                           <>
-                            Teste por 7 dias
+                            <CreditCard className="w-5 h-5 mr-2" />
+                            Pagar com Cartão
                           </>
                         )}
                       </Button>
 
                       <p className="text-xs text-center text-slate-400">
-                        {currentPlan.priceFormatted} {currentPlan.period} após o período de teste
+                        {currentPlan.priceFormatted} {currentPlan.period}
                       </p>
                       
                       <p className="text-xs text-center text-slate-500">

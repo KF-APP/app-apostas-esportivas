@@ -15,13 +15,21 @@ import {
   Loader2,
   Clock,
   AlertCircle,
-  ExternalLink
+  ExternalLink,
+  QrCode,
+  CreditCard
 } from 'lucide-react';
 
-// Links de teste por 7 dias - Mercado Pago
-const TRIAL_LINKS = {
-  monthly: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=70081b96f45d4d23a339caa944dc6c26',
-  yearly: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=f02a5b40e82240d48e7b4dcc1dcb8ca1',
+// Links de pagamento do Mercado Pago
+const PAYMENT_LINKS = {
+  monthly: {
+    pix: 'https://mpago.la/1s9ZWNM',
+    card: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=70081b96f45d4d23a339caa944dc6c26',
+  },
+  yearly: {
+    pix: 'https://mpago.la/23QTLXE',
+    card: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=f02a5b40e82240d48e7b4dcc1dcb8ca1',
+  },
 };
 
 function AguardandoPagamentoContent() {
@@ -33,6 +41,7 @@ function AguardandoPagamentoContent() {
   useEffect(() => {
     const email = searchParams.get('email');
     const plan = searchParams.get('plan');
+    const method = searchParams.get('method');
     
     const storedData = localStorage.getItem('palpitepro_checkout_data');
     
@@ -40,7 +49,7 @@ function AguardandoPagamentoContent() {
       const data = JSON.parse(storedData);
       setCheckoutData(data);
     } else if (email && plan) {
-      setCheckoutData({ email, plan });
+      setCheckoutData({ email, plan, paymentMethod: method });
     } else {
       router.push('/checkout');
       return;
@@ -55,11 +64,11 @@ function AguardandoPagamentoContent() {
     router.push('/login');
   };
 
-  const handleStartTrial = () => {
+  const handlePayment = (method: 'pix' | 'card') => {
     if (checkoutData?.plan) {
-      const trialLink = TRIAL_LINKS[checkoutData.plan as keyof typeof TRIAL_LINKS];
-      if (trialLink) {
-        window.open(trialLink, '_blank');
+      const paymentLink = PAYMENT_LINKS[checkoutData.plan as keyof typeof PAYMENT_LINKS]?.[method];
+      if (paymentLink) {
+        window.open(paymentLink, '_blank');
       }
     }
   };
@@ -129,14 +138,24 @@ function AguardandoPagamentoContent() {
                     <div>
                       <h4 className="font-semibold text-orange-400 mb-2">Ainda não pagou?</h4>
                       <p className="text-sm text-slate-300 mb-4">
-                        Clique no botão abaixo para iniciar seu teste por 7 dias
+                        Escolha a forma de pagamento para finalizar sua assinatura
                       </p>
-                      <Button 
-                        onClick={handleStartTrial}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium w-full"
-                      >
-                        Teste por 7 dias
-                      </Button>
+                      <div className="space-y-3">
+                        <Button 
+                          onClick={() => handlePayment('pix')}
+                          className="bg-teal-500 hover:bg-teal-600 text-white font-medium w-full"
+                        >
+                          <QrCode className="w-5 h-5 mr-2" />
+                          Pagar com PIX
+                        </Button>
+                        <Button 
+                          onClick={() => handlePayment('card')}
+                          className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium w-full"
+                        >
+                          <CreditCard className="w-5 h-5 mr-2" />
+                          Pagar com Cartão
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -164,6 +183,14 @@ function AguardandoPagamentoContent() {
                         {planNames[checkoutData.plan as keyof typeof planNames] || checkoutData.plan}
                       </Badge>
                     </div>
+                    {checkoutData.paymentMethod && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Forma de Pagamento:</span>
+                        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                          {checkoutData.paymentMethod === 'pix' ? 'PIX' : 'Cartão de Crédito'}
+                        </Badge>
+                      </div>
+                    )}
                   </div>
 
                   <Separator className="bg-slate-800" />
