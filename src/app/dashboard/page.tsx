@@ -591,15 +591,35 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
   const [suggestions, setSuggestions] = useState<BetSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<MatchAnalysis | null>(null);
+  const [predictionsLocked, setPredictionsLocked] = useState(false);
 
   const matchStarted = fixture.fixture?.status?.short !== 'NS';
   const matchFinished = fixture.fixture?.status?.short === 'FT';
 
+  // Chave única para cada jogo no localStorage
+  const storageKey = `predictions_${fixture.fixture.id}`;
+
+  // Carregar palpites salvos ao montar o componente
   useEffect(() => {
-    if (expanded && !analysis) {
+    const savedData = localStorage.getItem(storageKey);
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        setSuggestions(parsed.suggestions);
+        setAnalysis(parsed.analysis);
+        setPredictionsLocked(true);
+      } catch (error) {
+        console.error('Erro ao carregar palpites salvos:', error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    // Só carrega dados se expandido, não tem análise E não está bloqueado
+    if (expanded && !analysis && !predictionsLocked) {
       loadRealData();
     }
-  }, [expanded]);
+  }, [expanded, predictionsLocked]);
 
   const loadRealData = async () => {
     setLoading(true);
