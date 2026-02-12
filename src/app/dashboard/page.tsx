@@ -102,33 +102,50 @@ export default function DashboardPage() {
       const data = await getFixturesByDate(today);
       console.log('📥 Total de jogos recebidos da API:', data?.length || 0);
 
-      // IMPORTANTE: Removemos o filtro de horário!
-      // Agora todos os jogos retornados pela API para o dia de hoje serão exibidos,
-      // independentemente do horário (antes ou depois das 21h)
-
       const now = new Date();
-      const todayDate = now.toLocaleDateString('pt-BR');
 
-      console.log('📅 Data atual:', todayDate);
+      // Pega o início e fim do dia atual no horário de Brasília (BRT/BRST = UTC-3)
+      const todayStartBR = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      const todayEndBR = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-      // Log de alguns jogos para debug (primeiros 10)
-      if (data && data.length > 0) {
-        console.log('🎮 Jogos recebidos (primeiros 10):');
-        data.slice(0, 10).forEach((fixture: Fixture) => {
+      console.log('📅 Filtro de data (horário de Brasília):', {
+        inicio: todayStartBR.toLocaleString('pt-BR'),
+        fim: todayEndBR.toLocaleString('pt-BR'),
+        horaAtual: now.toLocaleString('pt-BR')
+      });
+
+      // Filtrar apenas jogos que acontecem HOJE no horário de Brasília
+      const filteredFixtures = (data || []).filter(fixture => {
+        const fixtureDate = new Date(fixture.fixture.date);
+        const status = fixture.fixture?.status?.short;
+
+        // Se está ao vivo, sempre mostra
+        const isLive = ['LIVE', '1H', '2H', 'HT'].includes(status || '');
+
+        // Verifica se o jogo acontece hoje no horário de Brasília
+        const isTodayBR = fixtureDate >= todayStartBR && fixtureDate <= todayEndBR;
+
+        return isLive || isTodayBR;
+      });
+
+      // Log de alguns jogos para debug
+      if (filteredFixtures.length > 0) {
+        console.log('🎮 Jogos filtrados (primeiros 10):');
+        filteredFixtures.slice(0, 10).forEach((fixture: Fixture) => {
           const fixtureDate = new Date(fixture.fixture.date);
           console.log({
             jogo: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
             horarioUTC: fixture.fixture.date,
-            horarioLocal: fixtureDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-            dataLocal: fixtureDate.toLocaleDateString('pt-BR'),
-            status: fixture.fixture?.status?.short
+            horarioBR: fixtureDate.toLocaleString('pt-BR'),
+            dataBR: fixtureDate.toLocaleDateString('pt-BR'),
+            status: fixture.fixture?.status?.short,
+            ehHoje: fixtureDate >= todayStartBR && fixtureDate <= todayEndBR
           });
         });
       }
 
-      // Não filtramos mais por horário - mostramos TODOS os jogos do dia
-      setFixtures(data || []);
-      console.log('✅ Total de jogos exibidos:', data?.length || 0);
+      setFixtures(filteredFixtures);
+      console.log('✅ Total de jogos do dia atual:', filteredFixtures.length);
     } catch (error) {
       console.error('Erro ao carregar jogos:', error);
       setFixtures([]);
