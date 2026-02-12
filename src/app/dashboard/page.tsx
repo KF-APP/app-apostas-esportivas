@@ -58,6 +58,7 @@ export default function DashboardPage() {
   const [loadingFixtures, setLoadingFixtures] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [dashStats, setDashStats] = useState<any>(null);
+  const [selectedDay, setSelectedDay] = useState<'today' | 'tomorrow'>('today');
 
   // Verificar autenticação ao carregar
   useEffect(() => {
@@ -93,39 +94,41 @@ export default function DashboardPage() {
     router.push('/');
   };
 
-  const loadTodayFixtures = async () => {
+  const loadFixturesByDay = async (dayOffset: number = 0) => {
     setLoadingFixtures(true);
     try {
-      const today = new Date().toISOString().split('T')[0];
-      console.log('🔍 Buscando jogos para a data:', today);
+      const now = new Date();
+      const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
+      const dateString = targetDate.toISOString().split('T')[0];
 
-      const data = await getFixturesByDate(today);
+      console.log('🔍 Buscando jogos para a data:', dateString);
+
+      const data = await getFixturesByDate(dateString);
       console.log('📥 Total de jogos recebidos da API:', data?.length || 0);
 
-      const now = new Date();
-
-      // Pega o início e fim do dia atual no horário de Brasília (BRT/BRST = UTC-3)
-      const todayStartBR = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-      const todayEndBR = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      // Pega o início e fim do dia alvo no horário de Brasília
+      const dayStartBR = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 0, 0, 0);
+      const dayEndBR = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 23, 59, 59, 999);
 
       console.log('📅 Filtro de data (horário de Brasília):', {
-        inicio: todayStartBR.toLocaleString('pt-BR'),
-        fim: todayEndBR.toLocaleString('pt-BR'),
+        dia: dayOffset === 0 ? 'Hoje' : 'Amanhã',
+        inicio: dayStartBR.toLocaleString('pt-BR'),
+        fim: dayEndBR.toLocaleString('pt-BR'),
         horaAtual: now.toLocaleString('pt-BR')
       });
 
-      // Filtrar apenas jogos que acontecem HOJE no horário de Brasília
+      // Filtrar jogos do dia específico
       const filteredFixtures = (data || []).filter(fixture => {
         const fixtureDate = new Date(fixture.fixture.date);
         const status = fixture.fixture?.status?.short;
 
-        // Se está ao vivo, sempre mostra
-        const isLive = ['LIVE', '1H', '2H', 'HT'].includes(status || '');
+        // Se está ao vivo, sempre mostra (apenas para hoje)
+        const isLive = dayOffset === 0 && ['LIVE', '1H', '2H', 'HT'].includes(status || '');
 
-        // Verifica se o jogo acontece hoje no horário de Brasília
-        const isTodayBR = fixtureDate >= todayStartBR && fixtureDate <= todayEndBR;
+        // Verifica se o jogo acontece no dia alvo
+        const isTargetDay = fixtureDate >= dayStartBR && fixtureDate <= dayEndBR;
 
-        return isLive || isTodayBR;
+        return isLive || isTargetDay;
       });
 
       // Log de alguns jogos para debug
@@ -139,13 +142,13 @@ export default function DashboardPage() {
             horarioBR: fixtureDate.toLocaleString('pt-BR'),
             dataBR: fixtureDate.toLocaleDateString('pt-BR'),
             status: fixture.fixture?.status?.short,
-            ehHoje: fixtureDate >= todayStartBR && fixtureDate <= todayEndBR
+            ehDiaAlvo: fixtureDate >= dayStartBR && fixtureDate <= dayEndBR
           });
         });
       }
 
       setFixtures(filteredFixtures);
-      console.log('✅ Total de jogos do dia atual:', filteredFixtures.length);
+      console.log('✅ Total de jogos:', filteredFixtures.length);
     } catch (error) {
       console.error('Erro ao carregar jogos:', error);
       setFixtures([]);
@@ -153,6 +156,9 @@ export default function DashboardPage() {
       setLoadingFixtures(false);
     }
   };
+
+  const loadTodayFixtures = () => loadFixturesByDay(0);
+  const loadTomorrowFixtures = () => loadFixturesByDay(1);
 
   const loadDashboardStats = () => {
     const stats = calculateDashboardStats();
@@ -351,19 +357,55 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="space-y-3 sm:space-y-6">
                   <div className="space-y-2 sm:space-y-3">
-                    <h3 className="text-xs sm:text-sm font-semibold text-slate-300">Status</h3>
-                    <Button
-                      variant={showLiveOnly ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setShowLiveOnly(!showLiveOnly)}
-                      className={`text-xs sm:text-sm h-7 sm:h-9 ${showLiveOnly ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'border-slate-700 hover:bg-slate-800'}`}
-                    >
-                      <Radio className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                      Ao Vivo {liveMatchesCount > 0 && `(${liveMatchesCount})`}
-                    </Button>
+                    <h3 className="text-xs sm:text-sm font-semibold text-slate-300">Dia</h3>
+                    <div className="flex gap-1.5 sm:gap-2 flex-wrap">
+                      <Button
+                        variant={selectedDay === 'today' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => {
+                          setSelectedDay('today');
+                          setShowLiveOnly(false);
+                          loadTodayFixtures();
+                        }}
+                        className={`text-xs sm:text-sm h-7 sm:h-9 ${selectedDay === 'today' ? 'bg-emerald-600 hover:bg-emerald-700' : 'border-slate-700 hover:bg-slate-800'}`}
+                      >
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                        Hoje
+                      </Button>
+                      <Button
+                        variant={selectedDay === 'tomorrow' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => {
+                          setSelectedDay('tomorrow');
+                          setShowLiveOnly(false);
+                          loadTomorrowFixtures();
+                        }}
+                        className={`text-xs sm:text-sm h-7 sm:h-9 ${selectedDay === 'tomorrow' ? 'bg-blue-600 hover:bg-blue-700' : 'border-slate-700 hover:bg-slate-800'}`}
+                      >
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                        Amanhã
+                      </Button>
+                    </div>
                   </div>
 
                   <Separator className="bg-slate-800" />
+
+                  {selectedDay === 'today' && (
+                    <div className="space-y-2 sm:space-y-3">
+                      <h3 className="text-xs sm:text-sm font-semibold text-slate-300">Status</h3>
+                      <Button
+                        variant={showLiveOnly ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setShowLiveOnly(!showLiveOnly)}
+                        className={`text-xs sm:text-sm h-7 sm:h-9 ${showLiveOnly ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'border-slate-700 hover:bg-slate-800'}`}
+                      >
+                        <Radio className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                        Ao Vivo {liveMatchesCount > 0 && `(${liveMatchesCount})`}
+                      </Button>
+                    </div>
+                  )}
+
+                  {selectedDay === 'today' && <Separator className="bg-slate-800" />}
 
                   <div className="space-y-2 sm:space-y-3">
                     <h3 className="text-xs sm:text-sm font-semibold text-slate-300">Categoria</h3>
@@ -508,12 +550,23 @@ export default function DashboardPage() {
                   <div>
                     <h2 className="text-base sm:text-2xl font-bold text-white flex items-center gap-1.5 sm:gap-2">
                       <Calendar className="w-4 h-4 sm:w-6 sm:h-6 text-emerald-500" />
-                      {showLiveOnly ? 'Ao Vivo' : 'Hoje'}
+                      {showLiveOnly ? 'Ao Vivo' : selectedDay === 'today' ? 'Hoje' : 'Amanhã'}
                     </h2>
-                    <p className="text-[10px] sm:text-sm text-slate-400 mt-0.5 sm:mt-1 capitalize hidden sm:block">{formattedDate}</p>
+                    <p className="text-[10px] sm:text-sm text-slate-400 mt-0.5 sm:mt-1 capitalize hidden sm:block">
+                      {selectedDay === 'today' ? formattedDate : (() => {
+                        const tomorrow = new Date();
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        return tomorrow.toLocaleDateString('pt-BR', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        });
+                      })()}
+                    </p>
                   </div>
-                  <Button 
-                    onClick={loadTodayFixtures}
+                  <Button
+                    onClick={selectedDay === 'today' ? loadTodayFixtures : loadTomorrowFixtures}
                     variant="outline"
                     size="sm"
                     className="border-slate-700 text-xs sm:text-sm h-7 sm:h-9"
