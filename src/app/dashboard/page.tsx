@@ -98,21 +98,23 @@ export default function DashboardPage() {
     try {
       const today = new Date().toISOString().split('T')[0];
       const data = await getFixturesByDate(today);
-      
+
       const now = new Date();
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-      
+      // Ajuste para considerar fuso horário: pega início do dia em UTC e fim do dia + algumas horas extras
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      // Estende até 5h da manhã do dia seguinte para capturar jogos noturnos com fuso horário diferente
+      const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 5, 0, 0);
+
       const filteredFixtures = (data || []).filter(fixture => {
         const fixtureDate = new Date(fixture.fixture.date);
         const status = fixture.fixture?.status?.short;
-        
+
         const isLive = ['LIVE', '1H', '2H', 'HT'].includes(status || '');
         const isToday = fixtureDate >= todayStart && fixtureDate <= todayEnd;
-        
+
         return isLive || isToday;
       });
-      
+
       setFixtures(filteredFixtures);
     } catch (error) {
       console.error('Erro ao carregar jogos:', error);
@@ -612,14 +614,14 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
         console.error('Erro ao carregar palpites salvos:', error);
       }
     }
-  }, []);
+  }, [storageKey]);
 
   useEffect(() => {
     // Só carrega dados se expandido, não tem análise E não está bloqueado
     if (expanded && !analysis && !predictionsLocked) {
       loadRealData();
     }
-  }, [expanded, predictionsLocked]);
+  }, [expanded, analysis, predictionsLocked]);
 
   const loadRealData = async () => {
     setLoading(true);
@@ -656,15 +658,15 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
       };
 
       setAnalysis(matchAnalysis);
-      
+
       const bets = generateBetSuggestions(matchAnalysis);
-      
+
       const conservativeBets = bets.filter(b => b.riskLevel === 'conservative');
       const mediumBets = bets.filter(b => b.riskLevel === 'medium');
       const highBets = bets.filter(b => b.riskLevel === 'high');
-      
+
       const allBets = [...bets];
-      
+
       if (conservativeBets.length === 0) {
         allBets.push(createFallbackBet('conservative', matchAnalysis));
       }
@@ -674,8 +676,18 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
       if (highBets.length === 0) {
         allBets.push(createFallbackBet('high', matchAnalysis));
       }
-      
+
       setSuggestions(allBets);
+
+      // SALVAR PALPITES NO LOCALSTORAGE IMEDIATAMENTE APÓS GERADOS
+      // Isso garante que os palpites fiquem fixos e não mudem mais
+      const dataToSave = {
+        suggestions: allBets,
+        analysis: matchAnalysis,
+        timestamp: new Date().toISOString(),
+      };
+      localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+      setPredictionsLocked(true);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
       
@@ -707,12 +719,23 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
       };
       
       setAnalysis(basicAnalysis);
-      
-      setSuggestions([
+
+      const fallbackBets = [
         createFallbackBet('conservative', basicAnalysis),
         createFallbackBet('medium', basicAnalysis),
         createFallbackBet('high', basicAnalysis),
-      ]);
+      ];
+
+      setSuggestions(fallbackBets);
+
+      // SALVAR PALPITES FALLBACK NO LOCALSTORAGE
+      const dataToSave = {
+        suggestions: fallbackBets,
+        analysis: basicAnalysis,
+        timestamp: new Date().toISOString(),
+      };
+      localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+      setPredictionsLocked(true);
     } finally {
       setLoading(false);
     }
@@ -730,7 +753,7 @@ function MatchCard({ fixture }: { fixture: Fixture }) {
 
   const getStatusBadge = () => {
     const status = fixture.fixture?.status?.short;
-    const elapsed = fixture.fixture?.status?.elapsed;
+    const elapsed = (fixture.fixture?.status as any)?.elapsed;
 
     if (status === 'NS') return { text: 'Não iniciado', color: 'bg-slate-700 text-slate-300', time: null };
     if (status === 'LIVE' || status === '1H' || status === '2H' || status === 'HT') {
