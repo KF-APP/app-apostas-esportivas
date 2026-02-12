@@ -10,24 +10,32 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Trophy, 
-  CheckCircle2, 
+import {
+  Trophy,
+  CheckCircle2,
   Lock,
   ArrowLeft,
   Loader2,
   Star,
-  AlertCircle
+  AlertCircle,
+  CreditCard,
+  Smartphone
 } from 'lucide-react';
 import Link from 'next/link';
 import { PLAN_PRICES } from '@/lib/payment';
 
 type PlanType = 'monthly' | 'yearly';
 
-// Links de teste grátis do Mercado Pago
-const FREE_TRIAL_LINKS = {
-  monthly: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=70081b96f45d4d23a339caa944dc6c26',
-  yearly: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=f02a5b40e82240d48e7b4dcc1dcb8ca1',
+// Links de pagamento do Mercado Pago
+const PAYMENT_LINKS = {
+  monthly: {
+    creditCard: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=70081b96f45d4d23a339caa944dc6c26',
+    pix: 'https://mpago.la/1s9ZWNM',
+  },
+  yearly: {
+    creditCard: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=f02a5b40e82240d48e7b4dcc1dcb8ca1',
+    pix: 'https://mpago.la/23QTLXE',
+  },
 };
 
 function CheckoutContent() {
@@ -35,6 +43,7 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('yearly');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'creditCard' | 'pix'>('creditCard');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -119,21 +128,21 @@ function CheckoutContent() {
       // Log de sucesso
       console.log('✅ Usuário criado/atualizado:', result);
 
-      // Obter link de teste grátis correto
-      const freeTrialLink = FREE_TRIAL_LINKS[selectedPlan];
+      // Obter link de pagamento correto baseado no plano e método de pagamento
+      const paymentLink = PAYMENT_LINKS[selectedPlan][selectedPaymentMethod];
 
-      if (!freeTrialLink) {
-        console.error('❌ Link de teste grátis não encontrado');
-        alert('Erro: Link de teste grátis não configurado. Entre em contato com o suporte.');
+      if (!paymentLink) {
+        console.error('❌ Link de pagamento não encontrado');
+        alert('Erro: Link de pagamento não configurado. Entre em contato com o suporte.');
         setLoading(false);
         return;
       }
 
-      console.log('🔗 Redirecionando para teste grátis:', freeTrialLink);
+      console.log('🔗 Redirecionando para pagamento:', paymentLink);
 
       // SOLUÇÃO MOBILE: Criar elemento <a> temporário e simular clique
       const link = document.createElement('a');
-      link.href = freeTrialLink;
+      link.href = paymentLink;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
       document.body.appendChild(link);
@@ -312,6 +321,45 @@ function CheckoutContent() {
 
                     <Separator className="bg-slate-800" />
 
+                    <div className="space-y-3">
+                      <Label className="text-slate-300">Método de Pagamento</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPaymentMethod('creditCard')}
+                          className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center gap-2 ${
+                            selectedPaymentMethod === 'creditCard'
+                              ? 'border-emerald-500 bg-emerald-500/10'
+                              : 'border-slate-700 hover:border-slate-600'
+                          }`}
+                        >
+                          <CreditCard className={`w-6 h-6 ${selectedPaymentMethod === 'creditCard' ? 'text-emerald-400' : 'text-slate-400'}`} />
+                          <span className={`text-sm font-medium ${selectedPaymentMethod === 'creditCard' ? 'text-emerald-400' : 'text-slate-300'}`}>
+                            Cartão de Crédito
+                          </span>
+                          <span className="text-xs text-slate-500">7 dias grátis</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPaymentMethod('pix')}
+                          className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center gap-2 ${
+                            selectedPaymentMethod === 'pix'
+                              ? 'border-emerald-500 bg-emerald-500/10'
+                              : 'border-slate-700 hover:border-slate-600'
+                          }`}
+                        >
+                          <Smartphone className={`w-6 h-6 ${selectedPaymentMethod === 'pix' ? 'text-emerald-400' : 'text-slate-400'}`} />
+                          <span className={`text-sm font-medium ${selectedPaymentMethod === 'pix' ? 'text-emerald-400' : 'text-slate-300'}`}>
+                            PIX
+                          </span>
+                          <span className="text-xs text-slate-500">Aprovação instantânea</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <Separator className="bg-slate-800" />
+
                     <Alert className="bg-blue-500/10 border-blue-500/30">
                       <Lock className="w-4 h-4 text-blue-400" />
                       <AlertDescription className="text-blue-300 text-sm">
@@ -320,9 +368,9 @@ function CheckoutContent() {
                     </Alert>
 
                     <div className="space-y-3">
-                      <Button 
+                      <Button
                         onClick={handleStartFreeTrial}
-                        size="lg" 
+                        size="lg"
                         className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-lg font-semibold"
                         disabled={loading || !isFormValid}
                       >
@@ -333,7 +381,7 @@ function CheckoutContent() {
                           </>
                         ) : (
                           <>
-                            Teste por 7 dias
+                            {selectedPaymentMethod === 'creditCard' ? 'Teste por 7 dias' : 'Pagar com PIX'}
                           </>
                         )}
                       </Button>

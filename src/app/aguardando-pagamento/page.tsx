@@ -7,21 +7,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Trophy, 
-  CheckCircle2, 
+import {
+  Trophy,
+  CheckCircle2,
   Mail,
   ArrowRight,
   Loader2,
   Clock,
   AlertCircle,
-  ExternalLink
+  ExternalLink,
+  CreditCard,
+  Smartphone
 } from 'lucide-react';
 
-// Links de teste por 7 dias - Mercado Pago
-const TRIAL_LINKS = {
-  monthly: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=70081b96f45d4d23a339caa944dc6c26',
-  yearly: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=f02a5b40e82240d48e7b4dcc1dcb8ca1',
+// Links de pagamento do Mercado Pago
+const PAYMENT_LINKS = {
+  monthly: {
+    creditCard: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=70081b96f45d4d23a339caa944dc6c26',
+    pix: 'https://mpago.la/1s9ZWNM',
+  },
+  yearly: {
+    creditCard: 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=f02a5b40e82240d48e7b4dcc1dcb8ca1',
+    pix: 'https://mpago.la/23QTLXE',
+  },
 };
 
 function AguardandoPagamentoContent() {
@@ -55,11 +63,11 @@ function AguardandoPagamentoContent() {
     router.push('/login');
   };
 
-  const handleStartTrial = () => {
+  const handlePayment = (method: 'creditCard' | 'pix') => {
     if (checkoutData?.plan) {
-      const trialLink = TRIAL_LINKS[checkoutData.plan as keyof typeof TRIAL_LINKS];
-      if (trialLink) {
-        window.open(trialLink, '_blank');
+      const paymentLink = PAYMENT_LINKS[checkoutData.plan as keyof typeof PAYMENT_LINKS]?.[method];
+      if (paymentLink) {
+        window.open(paymentLink, '_blank');
       }
     }
   };
@@ -129,14 +137,26 @@ function AguardandoPagamentoContent() {
                     <div>
                       <h4 className="font-semibold text-orange-400 mb-2">Ainda não pagou?</h4>
                       <p className="text-sm text-slate-300 mb-4">
-                        Clique no botão abaixo para iniciar seu teste por 7 dias
+                        Escolha a forma de pagamento e finalize sua assinatura
                       </p>
-                      <Button 
-                        onClick={handleStartTrial}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium w-full"
-                      >
-                        Teste por 7 dias
-                      </Button>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button
+                          onClick={() => handlePayment('creditCard')}
+                          className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium flex-col h-auto py-3"
+                        >
+                          <CreditCard className="w-5 h-5 mb-1" />
+                          <span className="text-sm">Cartão</span>
+                          <span className="text-xs opacity-75">7 dias grátis</span>
+                        </Button>
+                        <Button
+                          onClick={() => handlePayment('pix')}
+                          className="bg-blue-500 hover:bg-blue-600 text-white font-medium flex-col h-auto py-3"
+                        >
+                          <Smartphone className="w-5 h-5 mb-1" />
+                          <span className="text-sm">PIX</span>
+                          <span className="text-xs opacity-75">Instantâneo</span>
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
