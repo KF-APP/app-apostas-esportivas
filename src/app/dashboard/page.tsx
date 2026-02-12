@@ -97,13 +97,37 @@ export default function DashboardPage() {
     setLoadingFixtures(true);
     try {
       const today = new Date().toISOString().split('T')[0];
+      console.log('🔍 Buscando jogos para a data:', today);
+
       const data = await getFixturesByDate(today);
+      console.log('📥 Total de jogos recebidos da API:', data?.length || 0);
 
       const now = new Date();
       // Ajuste para considerar fuso horário: pega início do dia em UTC e fim do dia + algumas horas extras
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
       // Estende até 5h da manhã do dia seguinte para capturar jogos noturnos com fuso horário diferente
       const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 5, 0, 0);
+
+      console.log('⏰ Filtro de horário:', {
+        inicio: todayStart.toLocaleString('pt-BR'),
+        fim: todayEnd.toLocaleString('pt-BR'),
+        horaAtual: now.toLocaleString('pt-BR')
+      });
+
+      // Log de alguns jogos para debug (primeiros 5)
+      if (data && data.length > 0) {
+        console.log('🎮 Exemplo de jogos recebidos (primeiros 5):');
+        data.slice(0, 5).forEach((fixture: Fixture) => {
+          const fixtureDate = new Date(fixture.fixture.date);
+          console.log({
+            jogo: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+            horarioUTC: fixture.fixture.date,
+            horarioLocal: fixtureDate.toLocaleString('pt-BR'),
+            status: fixture.fixture?.status?.short,
+            passaNoFiltro: fixtureDate >= todayStart && fixtureDate <= todayEnd
+          });
+        });
+      }
 
       const filteredFixtures = (data || []).filter(fixture => {
         const fixtureDate = new Date(fixture.fixture.date);
@@ -115,6 +139,7 @@ export default function DashboardPage() {
         return isLive || isToday;
       });
 
+      console.log('✅ Jogos após filtro:', filteredFixtures.length);
       setFixtures(filteredFixtures);
     } catch (error) {
       console.error('Erro ao carregar jogos:', error);
