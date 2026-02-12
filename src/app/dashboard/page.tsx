@@ -102,45 +102,33 @@ export default function DashboardPage() {
       const data = await getFixturesByDate(today);
       console.log('📥 Total de jogos recebidos da API:', data?.length || 0);
 
+      // IMPORTANTE: Removemos o filtro de horário!
+      // Agora todos os jogos retornados pela API para o dia de hoje serão exibidos,
+      // independentemente do horário (antes ou depois das 21h)
+
       const now = new Date();
-      // Ajuste para considerar fuso horário: pega início do dia em UTC e fim do dia + algumas horas extras
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-      // Estende até 5h da manhã do dia seguinte para capturar jogos noturnos com fuso horário diferente
-      const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 5, 0, 0);
+      const todayDate = now.toLocaleDateString('pt-BR');
 
-      console.log('⏰ Filtro de horário:', {
-        inicio: todayStart.toLocaleString('pt-BR'),
-        fim: todayEnd.toLocaleString('pt-BR'),
-        horaAtual: now.toLocaleString('pt-BR')
-      });
+      console.log('📅 Data atual:', todayDate);
 
-      // Log de alguns jogos para debug (primeiros 5)
+      // Log de alguns jogos para debug (primeiros 10)
       if (data && data.length > 0) {
-        console.log('🎮 Exemplo de jogos recebidos (primeiros 5):');
-        data.slice(0, 5).forEach((fixture: Fixture) => {
+        console.log('🎮 Jogos recebidos (primeiros 10):');
+        data.slice(0, 10).forEach((fixture: Fixture) => {
           const fixtureDate = new Date(fixture.fixture.date);
           console.log({
             jogo: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
             horarioUTC: fixture.fixture.date,
-            horarioLocal: fixtureDate.toLocaleString('pt-BR'),
-            status: fixture.fixture?.status?.short,
-            passaNoFiltro: fixtureDate >= todayStart && fixtureDate <= todayEnd
+            horarioLocal: fixtureDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            dataLocal: fixtureDate.toLocaleDateString('pt-BR'),
+            status: fixture.fixture?.status?.short
           });
         });
       }
 
-      const filteredFixtures = (data || []).filter(fixture => {
-        const fixtureDate = new Date(fixture.fixture.date);
-        const status = fixture.fixture?.status?.short;
-
-        const isLive = ['LIVE', '1H', '2H', 'HT'].includes(status || '');
-        const isToday = fixtureDate >= todayStart && fixtureDate <= todayEnd;
-
-        return isLive || isToday;
-      });
-
-      console.log('✅ Jogos após filtro:', filteredFixtures.length);
-      setFixtures(filteredFixtures);
+      // Não filtramos mais por horário - mostramos TODOS os jogos do dia
+      setFixtures(data || []);
+      console.log('✅ Total de jogos exibidos:', data?.length || 0);
     } catch (error) {
       console.error('Erro ao carregar jogos:', error);
       setFixtures([]);
